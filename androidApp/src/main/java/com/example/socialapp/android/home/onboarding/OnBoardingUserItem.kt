@@ -25,11 +25,12 @@ import androidx.compose.ui.unit.dp
 import com.example.socialapp.android.R
 import com.example.socialapp.android.common.components.CircleImage
 import com.example.socialapp.android.common.components.FollowButton
-import com.example.socialapp.android.common.fake_data.FollowsUser
 import com.example.socialapp.android.common.fake_data.sampleUsers
 import com.example.socialapp.android.common.theme.MediumSpacing
 import com.example.socialapp.android.common.theme.SmallSpacing
 import com.example.socialapp.android.common.theme.SocialAppTheme
+import com.example.socialapp.android.common.util.toCurrentUrl
+import com.example.socialapp.common.domain.model.FollowsUser
 
 
 @Composable
@@ -41,7 +42,7 @@ fun OnBoardingUserItem(
     isFollowing: Boolean = false,
     onFollowButtonClick: (Boolean, FollowsUser) -> Unit,
 
-) {
+    ) {
     Card(
         modifier = modifier
             .height(140.dp)
@@ -60,10 +61,9 @@ fun OnBoardingUserItem(
 
             CircleImage(
                 modifier = modifier.size(50.dp),
-                imageUrl = followsUser.profileUrl
-            ) {
-                onUserClick(followsUser)
-            }
+                url = followsUser.imageUrl?.toCurrentUrl(),
+                onClick = {}
+            )
 
             Spacer(modifier = modifier.height(SmallSpacing))
 
@@ -80,8 +80,13 @@ fun OnBoardingUserItem(
                 modifier = modifier
                     .fillMaxWidth()
                     .heightIn(30.dp),
-                text = R.string.follow_text_label,
-                onClick = { onFollowButtonClick(!isFollowing, followsUser) }
+
+                text = if (!followsUser.isFollowing) {
+                    R.string.follow_text_label
+                } else R.string.unfollow_text_label,
+
+                onClick = { onFollowButtonClick(!isFollowing, followsUser) },
+                isOutlined = followsUser.isFollowing
             )
 
         }
@@ -94,7 +99,7 @@ fun OnBoardingUserItem(
 fun OnBoardingUserItemPreview() {
     SocialAppTheme {
         OnBoardingUserItem(
-            followsUser = sampleUsers.first(),
+            followsUser = sampleUsers.first().toFollowsUser(),
             onUserClick ={},
             onFollowButtonClick = { _ ,_ -> }
         )

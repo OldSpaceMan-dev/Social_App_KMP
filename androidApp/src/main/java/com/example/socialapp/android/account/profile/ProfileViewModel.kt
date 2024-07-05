@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.socialapp.android.common.fake_data.Post
+import com.example.socialapp.android.common.fake_data.SamplePost
 import com.example.socialapp.android.common.fake_data.Profile
 import com.example.socialapp.android.common.fake_data.samplePosts
 import com.example.socialapp.android.common.fake_data.sampleProfiles
@@ -53,6 +53,6 @@ data class UserInfoUiState(
 
 data class ProfilePostsUiState(
     val isLoading: Boolean = true, // // when we open -> show progress bar
-    val posts: List<Post> = listOf(),
+    val posts: List<SamplePost> = listOf(),
     val errorMessage: String? = null
 )

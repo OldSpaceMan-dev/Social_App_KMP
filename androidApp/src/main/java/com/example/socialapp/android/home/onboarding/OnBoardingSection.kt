@@ -22,11 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.socialapp.android.R
-import com.example.socialapp.android.common.fake_data.FollowsUser
 import com.example.socialapp.android.common.fake_data.sampleUsers
 import com.example.socialapp.android.common.theme.LargeSpacing
 import com.example.socialapp.android.common.theme.MediumSpacing
 import com.example.socialapp.android.common.theme.SocialAppTheme
+import com.example.socialapp.common.domain.model.FollowsUser
 
 @Composable
 fun OnBoardingSection(
@@ -114,7 +114,7 @@ fun OnBoardingSectionPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             OnBoardingSection(
-                users = sampleUsers,
+                users = sampleUsers.map { it.toFollowsUser() },
                 onUserClick = {},
                 onFollowButtonClick = { _, _ ->},
                 onBoardingFinish = {}
@@ -131,7 +131,7 @@ fun UsersRowPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             UsersRow(
-                users = sampleUsers,
+                users = sampleUsers.map { it.toFollowsUser() },
                 onUserClick ={},
                 onFollowButtonClick = { _, _ ->},
             )

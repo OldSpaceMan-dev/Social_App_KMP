@@ -41,11 +41,11 @@ fun PostDetailScreen(
     postUiState: PostUiState,
     commentsUiState: CommentsUiState,
 
-    onCommentMoreIconClick: (Comment) -> Unit,
-    onProfileClick: (Int) -> Unit,
-    onAddCommentClick: () -> Unit,//button with "Add comment"
-
     fetchData: () -> Unit // retry request
+
+    //onCommentMoreIconClick: (Comment) -> Unit,
+    //onProfileClick: (Int) -> Unit,
+    //onAddCommentClick: () -> Unit,//button with "Add comment"
 ) {
 
     if (postUiState.isLoading && commentsUiState.isLoading){
@@ -66,9 +66,9 @@ fun PostDetailScreen(
         ){
             item(key = "post_item"){
                 PostListItem(
-                    post = postUiState.post,
+                    post = postUiState.post.toDomainPost(),
                     onPostClick ={},
-                    onProfileClick = onProfileClick,
+                    onProfileClick = {},
                     onLikeClick = { /*TODO*/ }, //later
                     onCommentClick = { /*TODO*/ },
                     isDetailScreen = true//show all description
@@ -76,19 +76,19 @@ fun PostDetailScreen(
             }
 
             item(key = "comments_header_section"){
-                CommentsSectionHeader {
-                    onAddCommentClick()
-                }
+                CommentsSectionHeader(
+                    onAddCommentClick = {}
+                )
             }
 
             items(items = sampleComments, key = {comment -> comment.id}){
                 Divider()
                 CommentListItem(
                     comment = it,
-                    onProfileClick = onProfileClick
-                ) {
-                    onCommentMoreIconClick(it) // *** button
-                }
+                    onProfileClick = {},
+                    onMoreIconClick = {}
+                )
+                //{ onCommentMoreIconClick(it) // *** button }
             }
         }
     }else{
@@ -164,9 +164,9 @@ fun PostDetailScreenPreview() {
                     isLoading = false,
                     comments = sampleComments
                 ),
-                onCommentMoreIconClick = {},
-                onProfileClick = {},
-                onAddCommentClick = { /*TODO*/ },
+                //onCommentMoreIconClick = {},
+                //onProfileClick = {},
+                //onAddCommentClick = { /*TODO*/ },
                 fetchData = {}
             )
         }

@@ -6,8 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.socialapp.android.common.datastore.UserSettings
-import com.example.socialapp.android.common.datastore.toUserSettings
+import com.example.socialapp.common.data.local.UserSettings
+import com.example.socialapp.common.data.local.toUserSettings
 import com.example.socialapp.auth.domain.usecase.SignUpUseCase
 import com.example.socialapp.common.util.Result
 import kotlinx.coroutines.launch
@@ -16,7 +16,7 @@ class SignUpViewModel(
     // instance - signUp use case
     private val signUpUseCase: SignUpUseCase,
     //data store instance
-    private val dataStore: DataStore<UserSettings>
+    //private val dataStore: DataStore<UserSettings>
 ): ViewModel() {
 
     var uiState by mutableStateOf(SingUpUiState())
@@ -41,12 +41,18 @@ class SignUpViewModel(
                     )
                 }
                 is Result.Success -> {
+
                     //!! принудительно разворачиваю это, потому что всякий раз,
                     // когда результат успешен
                     // мы уверены, что поток данных здесь никогда не будет нулевым
+
+                    /* перенесли запись данных на уроверь shared
                     dataStore.updateData {
                         authResultData.data!!.toUserSettings()
                     }
+                     */
+
+
                     uiState.copy(
                         isAuthenticating = false,
                         authenticationSucceed = true

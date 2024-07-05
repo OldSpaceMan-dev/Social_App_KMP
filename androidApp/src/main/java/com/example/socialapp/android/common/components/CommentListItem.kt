@@ -40,7 +40,7 @@ fun CommentListItem(
     ) {
 
         CircleImage(
-            imageUrl = comment.authorImageUrl,
+            url = comment.authorImageUrl,
             modifier = modifier.size(30.dp)
         ) {
             onProfileClick(comment.authorId)

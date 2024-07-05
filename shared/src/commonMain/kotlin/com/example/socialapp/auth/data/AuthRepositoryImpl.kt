@@ -2,6 +2,8 @@ package com.example.socialapp.auth.data
 
 import com.example.socialapp.auth.domain.model.AuthResultData
 import com.example.socialapp.auth.domain.repository.AuthRepository
+import com.example.socialapp.common.data.local.UserPreferences
+import com.example.socialapp.common.data.local.toUserSettings
 import com.example.socialapp.common.util.DispatcherProvider
 import com.example.socialapp.common.util.Result
 import kotlinx.coroutines.withContext
@@ -15,7 +17,8 @@ import kotlinx.coroutines.withContext
 
 internal class AuthRepositoryImpl(
     private val dispatcher: DispatcherProvider,
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val userPreferences: UserPreferences
 ) : AuthRepository {
 
     override suspend fun signUp(
@@ -38,6 +41,9 @@ internal class AuthRepositoryImpl(
                         message = authResponse.errorMessage!!
                     )
                 } else {
+                    userPreferences.setUserData(
+                        authResponse.data.toAuthResultData().toUserSettings()
+                    )
                     Result.Success(
                         data = authResponse.data.toAuthResultData()
                     )
@@ -67,6 +73,9 @@ internal class AuthRepositoryImpl(
                         message = authResponse.errorMessage!!
                     )
                 } else {
+                    userPreferences.setUserData(
+                        authResponse.data.toAuthResultData().toUserSettings()
+                    )
                     Result.Success(
                         data = authResponse.data.toAuthResultData()
                     )

@@ -3,23 +3,30 @@ package com.example.socialapp.android.home
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.socialapp.android.common.components.PostListItem
-import com.example.socialapp.android.common.fake_data.FollowsUser
-import com.example.socialapp.android.common.fake_data.Post
-import com.example.socialapp.android.common.fake_data.samplePosts
-import com.example.socialapp.android.common.fake_data.sampleUsers
+import com.example.socialapp.android.common.theme.LargeSpacing
+import com.example.socialapp.android.common.theme.MediumSpacing
+
 import com.example.socialapp.android.common.theme.SocialAppTheme
+import com.example.socialapp.android.common.util.Constants
 import com.example.socialapp.android.home.onboarding.OnBoardingSection
-import com.example.socialapp.android.home.onboarding.OnBoardingUiState
+import com.example.socialapp.common.domain.model.Post
 import eu.bambooapps.material3.pullrefresh.PullRefreshIndicator
 import eu.bambooapps.material3.pullrefresh.pullRefresh
 import eu.bambooapps.material3.pullrefresh.rememberPullRefreshState
@@ -31,24 +38,59 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
 // UiState
     onBoardingUiState: OnBoardingUiState,
-    postsUiState: PostsUiState,
+    postsFeedUiState: PostsFeedUiState,
+    homeRefreshState: HomeRefreshState,
 //from PostListItem
-    onPostClick: (Post) -> Unit,  
-    onProfileClick: (Int) -> Unit, // it same -- onUserClick: (FollowsUser) -> Unit,
-    onLikeClick: (String) -> Unit,
-    onCommentClick: (String) -> Unit,
-//from onBoarding
-    
-    onFollowButtonClick: (Boolean, FollowsUser) -> Unit,
-    onBoardingFinish: () -> Unit,
+    onUiAction: (HomeUiAction) -> Unit,
+    onProfileNavigation: (userId: Long) -> Unit ,
+    onPostDetailNavigation: (Post) -> Unit,
 
-    fetchData: () -> Unit // извлечь данные
+/* old state - replace this == |^| ==
+    //onProfileClick: (Int) -> Unit, // it same -- onUserClick: (FollowsUser) -> Unit,
+    //onLikeClick: (String) -> Unit,
+
+
+    //onPostClick: (Post) -> Unit,
+    //onCommentClick: (String) -> Unit,
+//from onBoarding
+
+    //onFollowButtonClick: (Boolean, FollowsUser) -> Unit,
+    //onBoardingFinish: () -> Unit,
+ */
+
+    //fetchData: () -> Unit // извлечь данные
 ) {
     //рефреш страницы
     val pullRefreshState = rememberPullRefreshState(
-        refreshing = onBoardingUiState.isLoading && postsUiState.isLoading,
-        onRefresh = { fetchData() }
+        refreshing = homeRefreshState.isRefreshing, //onBoardingUiState.isLoading && postsFeedUiState.isLoading,
+        onRefresh = { onUiAction(HomeUiAction.RefreshAction) }
     )
+
+
+    //paginashion - show last post and reload new post
+    //Создает и запоминает состояние списка
+    val listState = rememberLazyListState()
+    val shouldFetchMorePosts by remember {
+        //derived-наследуемый (полученный)
+        derivedStateOf {
+            //текущего состояния списка - количество элем/ информацию о видимых элем.
+            val layoutInfo = listState.layoutInfo
+            //информации о видимых элементах
+            val visibleItemsInfo = layoutInfo.visibleItemsInfo
+
+            //если нет ни одного элемента
+            if (layoutInfo.totalItemsCount == 0) {
+                false
+            }else {
+                // Получает последний видимый элемент.
+                val lastVisibleItem = visibleItemsInfo.last()
+                //+1 тк индексы в списке с 0, а кол-во эл с 1
+                //те индекс 9 (last) +1 а элем=10
+                (lastVisibleItem.index + 1 == layoutInfo.totalItemsCount)
+            }
+
+        }
+    }
 
 
     Box(
@@ -58,47 +100,66 @@ fun HomeScreen(
     ){
         
         LazyColumn(
-            modifier = modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize(),
+            state = listState
         ){
             if (onBoardingUiState.shouldShowOnBoarding){
-                item(key = "onboardingsection") {
+                item {
                     OnBoardingSection(
-                        users = onBoardingUiState.users,
-                        onUserClick = {onProfileClick(it.id)},
-                        onFollowButtonClick = onFollowButtonClick
-                    ) {
-                        onBoardingFinish()
-                    }
+                        users = onBoardingUiState.followableUsers,
+                        onUserClick = {onProfileNavigation(it.id)},
+                        onFollowButtonClick = { _, user ->
+                            onUiAction(
+                                HomeUiAction.FollowUserAction(user)
+                            )
+                        },
+                        onBoardingFinish = { onUiAction(HomeUiAction.RemoveOnboardingAction) }
+                    )
+
+                    // place text
                 }
             }
 
             items(
-                items = postsUiState.posts,
-                key = {post -> post.id}
-            ){
+                items = postsFeedUiState.posts,
+                key = {post -> post.postId}
+            ){post ->
                 PostListItem(
-                    post = it,
-                    onPostClick = onPostClick,
-                    onProfileClick = onProfileClick,
-                    onLikeClick = onLikeClick,
-                    onCommentClick =  onCommentClick
+                    post = post,
+                    onPostClick = { onPostDetailNavigation(it) },
+                    onProfileClick = { onProfileNavigation(it)},
+                    onLikeClick = { onUiAction(HomeUiAction.PostLikeAction(it))},
+                    onCommentClick =  { onPostDetailNavigation(it) }
                 )
-
             }
 
+            if (postsFeedUiState.isLoading && postsFeedUiState.posts.isNotEmpty()) {
+                item(key = Constants.LOADING_MORE_ITEM_KEY) {
+                    Box(
+                        modifier = modifier
+                            .fillMaxSize()
+                            .padding(vertical = MediumSpacing, horizontal = LargeSpacing),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
 
         }
 
         PullRefreshIndicator(
-            refreshing = onBoardingUiState.isLoading && postsUiState.isLoading,
+            refreshing = homeRefreshState.isRefreshing,//onBoardingUiState.isLoading && postsFeedUiState.isLoading,
             state = pullRefreshState,
             modifier = modifier.align(Alignment.TopCenter)
         )
-
     }
 
-
-
+    LaunchedEffect(key1 = shouldFetchMorePosts) {
+        if (shouldFetchMorePosts && !postsFeedUiState.endReached) {
+            onUiAction(HomeUiAction.LoadMorePostsAction)
+        }
+    }
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -110,20 +171,12 @@ fun HomeScreenPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             HomeScreen(
-                onBoardingUiState = OnBoardingUiState(
-                    users = sampleUsers,
-                    shouldShowOnBoarding = true
-                ),
-                postsUiState = PostsUiState(
-                    posts = samplePosts
-                ),
-                onPostClick = {},
-                onProfileClick = {},
-                onLikeClick = {  },
-                onCommentClick = {  },
-                onFollowButtonClick = { _, _ -> },
-                onBoardingFinish = {},
-                fetchData = {}
+                onBoardingUiState = OnBoardingUiState(),
+                postsFeedUiState = PostsFeedUiState(),
+                homeRefreshState = HomeRefreshState(),
+                onPostDetailNavigation = {},
+                onProfileNavigation = {},
+                onUiAction = {}
             )
         }
     }

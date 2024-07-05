@@ -40,7 +40,7 @@ fun FollowsListItem(
 
         CircleImage(
             modifier = modifier.size(40.dp),
-            imageUrl = imageUrl,
+            url = imageUrl,
             onClick = {}
         )
 

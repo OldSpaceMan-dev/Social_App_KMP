@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -33,21 +34,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.socialapp.android.R
-import com.example.socialapp.android.common.fake_data.Post
+import com.example.socialapp.android.common.fake_data.SamplePost
 import com.example.socialapp.android.common.fake_data.samplePosts
 import com.example.socialapp.android.common.theme.ExtraLargeSpacing
 import com.example.socialapp.android.common.theme.LargeSpacing
 import com.example.socialapp.android.common.theme.MediumSpacing
 import com.example.socialapp.android.common.theme.SocialAppTheme
+import com.example.socialapp.android.common.util.toCurrentUrl
+import com.example.socialapp.common.domain.model.Post
 
 @Composable
 fun PostListItem(
     modifier: Modifier = Modifier,
     post: Post,
     onPostClick: (Post) -> Unit,
-    onProfileClick: (Int) -> Unit,
-    onLikeClick: (String) -> Unit,
-    onCommentClick: (String) -> Unit,
+    onProfileClick: (userId: Long) -> Unit,
+    onLikeClick: (Post) -> Unit,
+    onCommentClick: (Post) -> Unit,
     isDetailScreen: Boolean = false
 
 ) {
@@ -61,14 +64,16 @@ fun PostListItem(
     ) {
 
         PostHeader(
-            name = post.authorName,
-            profileUrl = post.authorImage,
+            name = post.userName,
+            profileUrl = post.userImageUrl,
             date = post.createdAt,
-            onProfileClick = {onProfileClick(post.authorId)}
+            onProfileClick = {
+                onProfileClick(post.userId)
+            }
         )
 
         AsyncImage(
-            model = post.imageUrl,
+            model = post.imageUrl.toCurrentUrl(),
             contentDescription = null,
             modifier = modifier
                 .fillMaxWidth()
@@ -84,13 +89,14 @@ fun PostListItem(
 
         PostLikesRow(
             likesCount = post.likesCount,
-            commentsCount = post.commentCount,
-            onLikeClick = {onLikeClick(post.id)},
-            onCommentClick = {onCommentClick(post.id)}
+            commentsCount = post.commentsCount,
+            onLikeClick = {onLikeClick(post)},
+            isPostLiked = post.isLiked,
+            onCommentClick = {onCommentClick(post)}
         )
 
         Text(
-            text = post.text,
+            text = post.caption,
             style = MaterialTheme.typography.bodyMedium,
             modifier = modifier
                 .padding(horizontal = LargeSpacing),
@@ -111,7 +117,7 @@ fun PostListItem(
 fun PostHeader(
     modifier: Modifier = Modifier,
     name: String,
-    profileUrl: String,
+    profileUrl: String?,
     date: String,
     onProfileClick: () -> Unit
 ) {
@@ -127,11 +133,10 @@ fun PostHeader(
     ) {
 
         CircleImage(
-            imageUrl = profileUrl,
-            modifier = modifier.size(30.dp)
-        ) {
-            onProfileClick()
-        }
+            url = profileUrl?.toCurrentUrl(),
+            modifier = modifier.size(30.dp),
+            onClick = onProfileClick
+        )
 
         Text(
             text = name,
@@ -174,6 +179,7 @@ fun PostLikesRow(
     likesCount: Int,
     commentsCount: Int,
     onLikeClick: () -> Unit,
+    isPostLiked: Boolean,
     onCommentClick: () -> Unit
 ) {
     Row(
@@ -187,11 +193,20 @@ fun PostLikesRow(
     ) {
         IconButton(onClick = onLikeClick) {
             Icon(
-                painter = painterResource(id = R.drawable.like_icon_outlined),
+                painter = if (isPostLiked) {
+                    painterResource(id = R.drawable.like_icon_filled)
+                } else {
+                    painterResource(id = R.drawable.like_icon_outlined)
+                },
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
 
+                // добавить условие на isPostLiked
+                tint = if (isPostLiked) {
+                    Color.Red // Используем ярко-красный цвет для лайкнутого состояния
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant // Используем стандартный цвет для не лайкнутых постов
+                }
+            )
         }
 
         Text(
@@ -232,7 +247,7 @@ private fun PostListItemPreview() {
     SocialAppTheme {
         Surface(color = MaterialTheme.colorScheme.surface) {
             PostListItem(
-                post = samplePosts.first(),
+                post = samplePosts.first().toDomainPost(),
                 onPostClick = {},
                 onProfileClick = {},
                 onCommentClick = {},
@@ -272,6 +287,7 @@ private fun PostLikesRowPreview() {
                 likesCount = 12,
                 commentsCount = 2,
                 onLikeClick = {},
+                isPostLiked = true,
                 onCommentClick = {}
             )
         }

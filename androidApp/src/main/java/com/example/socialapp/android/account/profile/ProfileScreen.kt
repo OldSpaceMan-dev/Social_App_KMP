@@ -38,7 +38,7 @@ import com.example.socialapp.android.R
 import com.example.socialapp.android.common.components.CircleImage
 import com.example.socialapp.android.common.components.FollowButton
 import com.example.socialapp.android.common.components.PostListItem
-import com.example.socialapp.android.common.fake_data.Post
+import com.example.socialapp.android.common.fake_data.SamplePost
 import com.example.socialapp.android.common.theme.LargeSpacing
 import com.example.socialapp.android.common.theme.MediumSpacing
 import com.example.socialapp.android.common.theme.SmallSpacing
@@ -55,7 +55,7 @@ fun ProfileScreen(
     onFollowersClick: () -> Unit,
     onFollowingClick: () -> Unit,
 
-    onPostClick: (Post) -> Unit,
+    onPostClick: (SamplePost) -> Unit,
     onLikeClick: (String) -> Unit, // String it will be post id
     onCommentClick: (String) -> Unit, // String it will be post id
 
@@ -92,11 +92,11 @@ fun ProfileScreen(
                 key = {post -> post.id}
             ){
                 PostListItem(
-                    post = it,
-                    onPostClick = onPostClick,
+                    post = it.toDomainPost(),
+                    onPostClick = {},
                     onProfileClick = {},
-                    onLikeClick = onLikeClick,
-                    onCommentClick = onCommentClick
+                    onLikeClick = {},
+                    onCommentClick = {}
                 )
             }
         }
@@ -140,7 +140,7 @@ fun ProfileHeaderSection(
 
         CircleImage(
             modifier = modifier.size(90.dp),
-            imageUrl = imageUrl,
+            url = imageUrl,
             onClick = {}
         ) 
         

@@ -3,7 +3,6 @@ package com.example.socialapp.android.common.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -15,11 +14,11 @@ import com.example.socialapp.android.R
 @Composable
 fun CircleImage(
     modifier: Modifier = Modifier,
-    imageUrl: String?,
+    url: String?,
     onClick: () -> Unit
 ) {
     AsyncImage(
-        model = imageUrl,
+        model = url,
         contentDescription = null,
         modifier = modifier
             .clip(CircleShape)

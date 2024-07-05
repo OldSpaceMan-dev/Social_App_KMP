@@ -65,7 +65,7 @@ private fun FollowButtonPreview() {
         Surface {
             FollowButton(
                 text = R.string.follow_text_label,
-                isOutlined = false,
+                isOutlined = true,
                 modifier = Modifier
                     .widthIn(100.dp)
                     .heightIn(30.dp)

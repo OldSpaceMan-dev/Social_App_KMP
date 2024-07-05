@@ -17,7 +17,8 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 
 @Composable
 fun SocialApp(
-    token: String?
+    //token: String?
+    uiState: MainActivityUiState
 ) {
 
     val navHostController = rememberNavController()
@@ -60,6 +61,26 @@ fun SocialApp(
 
     }
 
+
+    when(uiState){
+        MainActivityUiState.Loading -> {}
+        is MainActivityUiState.Success -> {
+            //Unit, что означает, что эффект будет запущен только один раз.
+            LaunchedEffect(key1 = Unit) {
+                if (uiState.currentUser.token.isEmpty()){
+                    navHostController.navigate(LoginDestination.route){
+                        //popUpTo - для удаления из стека назад до указанного пункта назначения.
+                        popUpTo(HomeDestination.route){
+                            inclusive = true //true,значает, что HomeDestination.route будет включен в удаление.
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    /*
     //нужно наблюдать за этим токеном всякий раз, когда
     // он меняется, нам нужно выполнить некоторую логику
     // если стартуя с HomeScreen - token = empty - выполним навигацию на LoginDestination
@@ -77,7 +98,7 @@ fun SocialApp(
             }
         }
     )
-
+     */
 
 
     

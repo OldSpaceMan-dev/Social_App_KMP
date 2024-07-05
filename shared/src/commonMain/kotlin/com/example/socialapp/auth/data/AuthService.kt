@@ -1,6 +1,6 @@
 package com.example.socialapp.auth.data
 
-import com.example.socialapp.common.data.KtorApi
+import com.example.socialapp.common.data.remote.KtorApi
 import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
