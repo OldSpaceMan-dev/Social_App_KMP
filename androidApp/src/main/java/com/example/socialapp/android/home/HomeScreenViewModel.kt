@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.socialapp.android.common.fake_data.samplePosts
 import com.example.socialapp.android.common.util.Constants
 import com.example.socialapp.android.common.util.DefaultPagingManager
 import com.example.socialapp.android.common.util.PagingManager
