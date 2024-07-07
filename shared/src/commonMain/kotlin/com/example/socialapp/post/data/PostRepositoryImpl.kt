@@ -1,7 +1,9 @@
 package com.example.socialapp.post.data
 
 import com.example.socialapp.common.data.local.UserPreferences
+import com.example.socialapp.common.data.local.UserSettings
 import com.example.socialapp.common.data.model.LikeParams
+import com.example.socialapp.common.data.model.PostsApiResponse
 import com.example.socialapp.common.data.remote.PostApiService
 import com.example.socialapp.common.domain.model.Post
 import com.example.socialapp.common.util.Constants
@@ -18,6 +20,18 @@ internal class PostRepositoryImpl(
     private val dispatcher: DispatcherProvider
 ) : PostRepository {
     override suspend fun getFeedPosts(page: Int, pageSize: Int): Result<List<Post>> {
+        return fetchPosts(
+            apiCall = {currentUserData ->
+                postApiService.getFeedPosts(
+                    userToken = currentUserData.token,
+                    currentUserId = currentUserData.id,
+                    page = page,
+                    pageSize = pageSize
+                )
+            }
+        )
+
+        /* заменим ответом от фетчпост
         return withContext(dispatcher.io) {
             try {
                 val userData = userPreferences.getUserData()
@@ -48,8 +62,8 @@ internal class PostRepositoryImpl(
             } catch (exception: Throwable) {
                 Result.Error(message = "${exception.cause}")
             }
-
         }
+        */
     }
 
     override suspend fun likeOrUnlikePost(postId: Long, shouldLike: Boolean): Result<Boolean> {
@@ -76,4 +90,65 @@ internal class PostRepositoryImpl(
             }
         }
     }
+
+
+    override suspend fun getUserPosts(userId: Long, page: Int, pageSize: Int): Result<List<Post>> {
+        return fetchPosts(
+            apiCall = {currentUserData ->
+                postApiService.getUserPosts(
+                    userToken = currentUserData.token,
+                    userId = userId,
+                    currentUserId = currentUserData.id,
+                    page = page,
+                    pageSize = pageSize
+                )
+            }
+        )
+    }
+
+
+    private suspend fun fetchPosts(
+        apiCall: suspend (UserSettings) -> PostsApiResponse  // принимает UserSettings возвращает PostsApiResponse
+    ): Result<List<Post>> {
+        return withContext(dispatcher.io){
+            try {
+                val currentUserData = userPreferences.getUserData()
+                val apiResponse = apiCall(currentUserData)
+
+                when (apiResponse.code) {
+                    HttpStatusCode.OK -> {
+                        Result.Success(data = apiResponse.data.posts.map { it.toDomainPost() })
+                    }
+                    else -> {
+                        Result.Error(message = Constants.UNEXPECTED_ERROR)
+                    }
+                }
+            }catch (ioException: IOException) {
+                Result.Error(message = Constants.NO_INTERNET_ERROR)
+            } catch (exception: Throwable) {
+                Result.Error(message = "${exception.cause}")
+            }
+        }
+    }
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

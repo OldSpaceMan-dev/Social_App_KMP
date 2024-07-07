@@ -47,11 +47,13 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+
         splashScreen.setKeepOnScreenCondition{
             // Возвращаем true, если текущее состояние UI - Loading.
             // Это означает, что экран заставки будет оставаться на экране, пока приложение не загрузится полностью.
             uiState == MainActivityUiState.Loading
         }
+
 
         setContent {
             SocialAppTheme {

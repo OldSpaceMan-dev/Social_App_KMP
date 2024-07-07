@@ -29,9 +29,9 @@ fun Profile(
         onFollowingClick = {
                 navigator.navigate(FollowingDestination(userId))
         },
-        onPostClick = {},
-        onLikeClick = {},
-        onCommentClick = {},
+        //onPostClick = {},
+        //onLikeClick = {},
+        //onCommentClick = {},
         fetchData = {viewModel.fetchProfile(userId)}
     )
 }

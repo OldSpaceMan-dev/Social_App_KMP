@@ -55,10 +55,11 @@ fun ProfileScreen(
     onFollowersClick: () -> Unit,
     onFollowingClick: () -> Unit,
 
+    /*
     onPostClick: (SamplePost) -> Unit,
     onLikeClick: (String) -> Unit, // String it will be post id
     onCommentClick: (String) -> Unit, // String it will be post id
-
+     */
     fetchData: () -> Unit // ProfileViewModel - start fetching user profile
 ) {
 

@@ -6,9 +6,11 @@
     <application
         android:allowBackup="false"
         android:supportsRtl="true"
+        android:label="Social Circle"
         android:name=".SocialApplication"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.Splash">
+        android:theme="@style/Theme.Splash"
+        android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true">
