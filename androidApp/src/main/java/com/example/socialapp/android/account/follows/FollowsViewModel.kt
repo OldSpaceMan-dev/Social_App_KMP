@@ -20,7 +20,7 @@ class FollowsViewModel : ViewModel(){
     // followsType - if = 1  we need to fetch(извлечь) this user followers
     // if = 2 this user following
     // 1 - followers // 2 - following
-    fun fetchFollows(userId: Int, followsType: Int){
+    fun fetchFollows(userId: Long, followsType: Int){
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true)
 

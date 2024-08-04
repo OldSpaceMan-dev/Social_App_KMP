@@ -16,7 +16,7 @@ fun FollowsScreen(
     modifier: Modifier = Modifier,
     uiState: FollowsUiState,
     fetchFollows: () -> Unit,//calback to inform viewModel when it's ready to draw to view
-    onItemClick: (Int) -> Unit   //pass to userId -> to navigate to profile screen
+    onItemClick: (Long) -> Unit   //pass to userId -> to navigate to profile screen
 ) {
 
     Box(
@@ -27,13 +27,14 @@ fun FollowsScreen(
             modifier = modifier.fillMaxSize()
         ){
             items(
-                items = uiState.sampleFollowsUsers,
+                items = uiState.sampleFollowsUsers
+                    .map { it.toFollowsUser() },
                 key = { user -> user.id }
             ){
                 FollowsListItem(
                     name = it.name,
                     bio = it.bio,
-                    imageUrl = it.profileUrl
+                    imageUrl = it.imageUrl ?: ""
                 ) {
                     onItemClick(it.id)
                 }

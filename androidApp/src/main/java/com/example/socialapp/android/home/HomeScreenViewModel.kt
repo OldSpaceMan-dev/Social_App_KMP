@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.socialapp.android.common.util.Constants
 import com.example.socialapp.android.common.util.DefaultPagingManager
+import com.example.socialapp.android.common.util.Event
+import com.example.socialapp.android.common.util.EventBus
 import com.example.socialapp.android.common.util.PagingManager
 import com.example.socialapp.common.domain.model.FollowsUser
 import com.example.socialapp.common.domain.model.Post
@@ -17,6 +19,8 @@ import com.example.socialapp.post.domain.usecase.GetPostsUseCase
 import com.example.socialapp.post.domain.usecase.LikeOrUnlikePostUseCase
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class HomeScreenViewModel(
@@ -40,6 +44,14 @@ class HomeScreenViewModel(
 
     init {
         fetchData()
+
+        //colletc our event
+        EventBus.events
+            .onEach {
+                when (it) {
+                    is Event.PostUpdated -> updatePost(it.post)
+                }
+            }.launchIn(viewModelScope)
     }
 
 
@@ -228,17 +240,23 @@ class HomeScreenViewModel(
 
             when (result) {
                 is Result.Error -> {
-                    postsFeedUiState = postsFeedUiState.copy(
-                        posts = postsFeedUiState.posts.map {
-                            if (it.postId == post.postId) post else it
-                        }
-                    )
+                    updatePost(post)
                 }
 
                 is Result.Success -> Unit
             }
         }
     }
+
+    private fun updatePost(post: Post) {
+        postsFeedUiState = postsFeedUiState.copy(
+            posts = postsFeedUiState.posts.map {
+                if (it.postId == post.postId) post else it
+            }
+        )
+    }
+
+
 
 
 

@@ -10,7 +10,7 @@ import org.koin.androidx.compose.koinViewModel
 @Destination
 fun Followers(
     navigator: DestinationsNavigator,
-    userId: Int
+    userId: Long
 ) {
     val viewModel: FollowsViewModel = koinViewModel()
 
@@ -19,6 +19,7 @@ fun Followers(
         fetchFollows = { viewModel.fetchFollows(userId, 1)},
         onItemClick = {
             navigator.navigate(ProfileDestination(it))
+            //navigator.navigate(ProfileDestination(it))
         }
     )
 

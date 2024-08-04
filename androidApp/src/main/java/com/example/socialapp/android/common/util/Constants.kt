@@ -5,4 +5,5 @@ object Constants {
     const val DEFAULT_REQUEST_PAGE_SIZE = 3
     const val LOADING_MORE_ITEM_KEY = "LOADING_MORE_KEY"
     const val UNEXPECTED_ERROR_MESSAGE = "Opps, something went wrong, try again!"
+    const val EVENT_BUS_BUFFER_CAPACITY = 5
 }

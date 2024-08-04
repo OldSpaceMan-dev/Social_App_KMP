@@ -17,6 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import com.example.socialapp.android.R
+import com.example.socialapp.android.account.profile.ProfileUiAction
+import com.example.socialapp.android.account.profile.ProfileViewModel
 import com.example.socialapp.android.common.theme.SmallElevation
 import com.example.socialapp.android.destinations.EditProfileDestination
 import com.example.socialapp.android.destinations.FollowersDestination
@@ -26,13 +28,16 @@ import com.example.socialapp.android.destinations.LoginDestination
 import com.example.socialapp.android.destinations.PostDetailDestination
 import com.example.socialapp.android.destinations.ProfileDestination
 import com.example.socialapp.android.destinations.SignUpDestination
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.utils.currentDestinationAsState
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(
     modifier: Modifier = Modifier,
-    navHostController: NavHostController
+    navHostController: NavHostController,
 ) {
     val currentDestination = navHostController.currentDestinationAsState().value
 
@@ -57,7 +62,8 @@ fun AppBar(
                 AnimatedVisibility(
                     visible = currentDestination?.route == HomeDestination.route
                 ) {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                    }) {
                         Icon(
                             painter = painterResource(id = R.drawable.person_circle_icon),
                             contentDescription = null

@@ -132,17 +132,28 @@ fun PostHeader(
         horizontalArrangement = Arrangement.spacedBy(MediumSpacing)
     ) {
 
-        CircleImage(
-            url = profileUrl?.toCurrentUrl(),
-            modifier = modifier.size(30.dp),
-            onClick = onProfileClick
-        )
 
-        Text(
-            text = name,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable(onClick = onProfileClick)
+        ) {
+            CircleImage(
+                url = profileUrl?.toCurrentUrl(),
+                modifier = modifier.size(30.dp),
+                onClick = onProfileClick
+            )
+
+            Spacer(modifier = Modifier.width(MediumSpacing))
+
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.clickable(onClick = onProfileClick)
+            )
+        }
+
 
         Box(modifier = modifier
             .size(4.dp)

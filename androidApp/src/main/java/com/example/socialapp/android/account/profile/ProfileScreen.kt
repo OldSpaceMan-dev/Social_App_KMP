@@ -17,12 +17,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,11 +42,13 @@ import com.example.socialapp.android.R
 import com.example.socialapp.android.common.components.CircleImage
 import com.example.socialapp.android.common.components.FollowButton
 import com.example.socialapp.android.common.components.PostListItem
-import com.example.socialapp.android.common.fake_data.SamplePost
 import com.example.socialapp.android.common.theme.LargeSpacing
 import com.example.socialapp.android.common.theme.MediumSpacing
 import com.example.socialapp.android.common.theme.SmallSpacing
 import com.example.socialapp.android.common.theme.SocialAppTheme
+import com.example.socialapp.android.common.util.Constants
+import com.example.socialapp.android.common.util.toCurrentUrl
+import com.example.socialapp.common.domain.model.Post
 
 
 @Composable
@@ -51,20 +57,43 @@ fun ProfileScreen(
     userInfoUiState: UserInfoUiState,
     profilePostsUiState: ProfilePostsUiState,
 
-    onButtonClick: () -> Unit, // from HeaderSection
-    onFollowersClick: () -> Unit,
-    onFollowingClick: () -> Unit,
+    profileId: Long, //вводим композицию на экране профиля
+    onUiAction: (ProfileUiAction) -> Unit,
 
-    /*
-    onPostClick: (SamplePost) -> Unit,
-    onLikeClick: (String) -> Unit, // String it will be post id
-    onCommentClick: (String) -> Unit, // String it will be post id
-     */
-    fetchData: () -> Unit // ProfileViewModel - start fetching user profile
+    onFollowButtonClick: () -> Unit, // from HeaderSection
+    onFollowersScreenNavigation: () -> Unit,
+    onFollowingScreenNavigation: () -> Unit,
+    onPostDetailNavigation: (Post) -> Unit
+
 ) {
+    //Создает и запоминает состояние списка
+    val listState = rememberLazyListState()
+
+    //paginashion - show last post and reload new post
+    val shouldFetchMorePosts by remember {
+        //derived-наследуемый (полученный)
+        derivedStateOf {
+            //текущего состояния списка - количество элем/ информацию о видимых элем.
+            val layoutInfo = listState.layoutInfo
+            //информации о видимых элементах
+            val visibleItemsInfo = layoutInfo.visibleItemsInfo
+
+            //если нет ни одного элемента
+            if (layoutInfo.totalItemsCount == 0) {
+                false
+            }else {
+                // Получает последний видимый элемент.
+                val lastVisibleItem = visibleItemsInfo.last()
+                //+1 тк индексы в списке с 0, а кол-во эл с 1
+                //те индекс 9 (last) +1 а элем=10
+                (lastVisibleItem.index + 1 == layoutInfo.totalItemsCount)
+            }
+
+        }
+    }
 
     //circle indicator
-    if (userInfoUiState.isLoading && profilePostsUiState.isLoading){
+    if (userInfoUiState.isLoading){
         Box(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -73,41 +102,72 @@ fun ProfileScreen(
         }
     }else{
         LazyColumn(
-            modifier = modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize(),
+            state = listState
         ){
             item(key = "header_section"){
                 ProfileHeaderSection(
-                    imageUrl = userInfoUiState.profile?.profileUrl ?: "",
+                    imageUrl = userInfoUiState.profile?.imageUrl ?: "",
                     name = userInfoUiState.profile?.name ?: "",
                     bio = userInfoUiState.profile?.bio ?: "",
                     followersCount = userInfoUiState.profile?.followersCount ?: 0,
                     followingCount = userInfoUiState.profile?.followingCount ?: 0,
-                    onButtonClick = onButtonClick,
-                    onFollowersClick = onFollowersClick,
-                    onFollowingClick = onFollowingClick
+
+                    isFollowing = userInfoUiState.profile?.isFollowing ?: false,
+                    isCurrentUser = userInfoUiState.profile?.isOwnProfile ?:false,
+
+                    onButtonClick = onFollowButtonClick,
+                    onFollowersClick = onFollowersScreenNavigation,
+                    onFollowingClick = onFollowingScreenNavigation
                 )
             }
 
             items(
                 items = profilePostsUiState.posts,
-                key = {post -> post.id}
+                key = {post -> post.postId}
             ){
                 PostListItem(
-                    post = it.toDomainPost(),
+                    post = it,
                     onPostClick = {},
                     onProfileClick = {},
-                    onLikeClick = {},
+                    onLikeClick = {post ->
+                        onUiAction(ProfileUiAction.PostLikeAction(post))
+                    },
                     onCommentClick = {}
                 )
             }
+
+            //loading spinner
+            if (profilePostsUiState.isLoading){
+                item(key = Constants.LOADING_MORE_ITEM_KEY) {
+                    Box(
+                        modifier = modifier
+                            .fillMaxSize()
+                            .padding(
+                                vertical = MediumSpacing,
+                                horizontal = LargeSpacing
+                            ),
+                        contentAlignment = Alignment.Center
+                    ){
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+
         }
     }
 
     //we need fetchData call back
     LaunchedEffect(key1 = Unit){
-        fetchData()
+        onUiAction(ProfileUiAction.FetchProfileAction(profileId = profileId))
     }
 
+    //send request to load more post
+    LaunchedEffect(key1 = shouldFetchMorePosts) {
+        if (shouldFetchMorePosts && !profilePostsUiState.endReached){
+            onUiAction(ProfileUiAction.LoadMorePostsAction)
+        }
+    }
 
 }
 
@@ -118,7 +178,7 @@ fun ProfileScreen(
 @Composable
 fun ProfileHeaderSection(
     modifier: Modifier = Modifier,
-    imageUrl: String,
+    imageUrl: String?,
     name: String,
     bio: String,
     followersCount: Int,
@@ -141,7 +201,7 @@ fun ProfileHeaderSection(
 
         CircleImage(
             modifier = modifier.size(90.dp),
-            url = imageUrl,
+            url = imageUrl?.toCurrentUrl(),
             onClick = {}
         ) 
         
@@ -187,7 +247,11 @@ fun ProfileHeaderSection(
             }
 
             FollowButton(
-                text = R.string.follow_text_label, // change later - for outline button
+                text = when {//R.string.follow_text_label, // change later - for outline button
+                    isCurrentUser -> R.string.edit_profile_label
+                    isFollowing -> R.string.unfollow_text_label
+                    else -> R.string.follow_text_label
+                },
                 onClick = onButtonClick,
                 modifier = modifier
                     .height(30.dp)

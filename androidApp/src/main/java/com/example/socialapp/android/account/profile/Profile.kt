@@ -11,7 +11,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 @Destination
 fun Profile(
-    userId: Int,
+    userId: Long,
     navigator: DestinationsNavigator
 ) {
     val viewModel: ProfileViewModel = koinViewModel()
@@ -19,19 +19,19 @@ fun Profile(
     ProfileScreen(
         userInfoUiState = viewModel.userInfoUiState,
         profilePostsUiState = viewModel.profilePostsUiState,
-        onButtonClick = {
-                navigator.navigate(EditProfileDestination(userId))
+        profileId = userId,
+        onUiAction = viewModel::onUiAction,
+        onFollowButtonClick = {
+                 viewModel.userInfoUiState.profile?.let { profile ->
+                     if (profile.isOwnProfile) {
+                         navigator.navigate(EditProfileDestination(userId))
+                     } else {
+                         viewModel.onUiAction(ProfileUiAction.FollowUserAction(profile = profile))
+                     }
+                 }
         },
-        // later we'll check if it's follow/unfollow click action
-        onFollowersClick = {
-                navigator.navigate(FollowersDestination(userId))
-        },
-        onFollowingClick = {
-                navigator.navigate(FollowingDestination(userId))
-        },
-        //onPostClick = {},
-        //onLikeClick = {},
-        //onCommentClick = {},
-        fetchData = {viewModel.fetchProfile(userId)}
+        onFollowersScreenNavigation = {navigator.navigate(FollowersDestination(userId))},
+        onFollowingScreenNavigation = {navigator.navigate(FollowingDestination(userId))},
+        onPostDetailNavigation = {}
     )
 }

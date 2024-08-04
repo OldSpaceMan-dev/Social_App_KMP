@@ -62,7 +62,7 @@ fun OnBoardingUserItem(
             CircleImage(
                 modifier = modifier.size(50.dp),
                 url = followsUser.imageUrl?.toCurrentUrl(),
-                onClick = {}
+                onClick = {onUserClick(followsUser)}
             )
 
             Spacer(modifier = modifier.height(SmallSpacing))
