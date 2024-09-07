@@ -47,7 +47,7 @@ import com.example.socialapp.common.domain.model.Post
 fun PostListItem(
     modifier: Modifier = Modifier,
     post: Post,
-    onPostClick: (Post) -> Unit,
+    onPostClick: ((Post) -> Unit)? = null, //делаем карточку не кликабельной - обнуляем функцию
     onProfileClick: (userId: Long) -> Unit,
     onLikeClick: (Post) -> Unit,
     onCommentClick: (Post) -> Unit,
@@ -59,8 +59,17 @@ fun PostListItem(
             .fillMaxWidth()
             //.aspectRatio(ratio = 0.7f) // 7:10 || width : height
             .background(color = MaterialTheme.colorScheme.surface)
-            .clickable { onPostClick(post) }
-            .padding(bottom = ExtraLargeSpacing)
+
+            //.clickable { onPostClick(post) }
+            .let { mod ->
+                if (onPostClick != null) {
+                    mod
+                        .clickable { onPostClick(post) }
+                        .padding(bottom = ExtraLargeSpacing)
+                } else {
+                    mod
+                }
+            }
     ) {
 
         PostHeader(
@@ -259,7 +268,7 @@ private fun PostListItemPreview() {
         Surface(color = MaterialTheme.colorScheme.surface) {
             PostListItem(
                 post = samplePosts.first().toDomainPost(),
-                onPostClick = {},
+                //onPostClick = { },
                 onProfileClick = {},
                 onCommentClick = {},
                 onLikeClick = {}

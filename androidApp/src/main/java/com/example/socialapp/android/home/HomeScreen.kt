@@ -45,20 +45,6 @@ fun HomeScreen(
     onProfileNavigation: (userId: Long) -> Unit ,
     onPostDetailNavigation: (Post) -> Unit,
 
-/* old state - replace this == |^| ==
-    //onProfileClick: (Int) -> Unit, // it same -- onUserClick: (FollowsUser) -> Unit,
-    //onLikeClick: (String) -> Unit,
-
-
-    //onPostClick: (Post) -> Unit,
-    //onCommentClick: (String) -> Unit,
-//from onBoarding
-
-    //onFollowButtonClick: (Boolean, FollowsUser) -> Unit,
-    //onBoardingFinish: () -> Unit,
- */
-
-    //fetchData: () -> Unit // извлечь данные
 ) {
     //рефреш страницы
     val pullRefreshState = rememberPullRefreshState(

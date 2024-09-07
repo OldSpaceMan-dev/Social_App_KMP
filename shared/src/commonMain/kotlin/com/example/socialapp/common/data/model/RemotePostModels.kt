@@ -58,3 +58,32 @@ internal data class PostsApiResponse(
     val code: HttpStatusCode,
     val data: PostsApiResponseData
 )
+
+
+/// запросить один пост
+@Serializable
+internal data class PostApiResponseData(
+    val success: Boolean,
+    val post: RemotePost? = null,
+    val message: String? = null
+)
+
+internal data class PostApiResponse(
+    val code: HttpStatusCode,
+    val data: PostApiResponseData
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

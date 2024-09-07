@@ -23,13 +23,15 @@ import com.example.socialapp.android.common.fake_data.sampleComments
 import com.example.socialapp.android.common.theme.LargeSpacing
 import com.example.socialapp.android.common.theme.MediumSpacing
 import com.example.socialapp.android.common.theme.SocialAppTheme
+import com.example.socialapp.android.common.util.toCurrentUrl
+import com.example.socialapp.post.domain.model.PostComment
 
 @Composable
 fun CommentListItem(
     modifier: Modifier = Modifier,
-    comment: Comment,
-    onProfileClick: (Int) -> Unit,
-    onMoreIconClick: () -> Unit,
+    comment: PostComment,
+    onProfileClick: (Long) -> Unit,
+    onMoreIconClick: (PostComment) -> Unit,
 ) {
 
     Row(
@@ -40,11 +42,10 @@ fun CommentListItem(
     ) {
 
         CircleImage(
-            url = comment.authorImageUrl,
-            modifier = modifier.size(30.dp)
-        ) {
-            onProfileClick(comment.authorId)
-        }
+            url = comment.userImageUrl?.toCurrentUrl(),
+            modifier = modifier.size(30.dp),
+            onClick = { onProfileClick(comment.userId)}
+        )
 
         Column(
             modifier.weight(1f)
@@ -54,14 +55,14 @@ fun CommentListItem(
                 horizontalArrangement = Arrangement.spacedBy(MediumSpacing)
             ) {
                 Text(
-                    text = comment.authorName,
+                    text = comment.userName,
                     style = MaterialTheme.typography.titleSmall,
                     modifier = modifier
                         .alignByBaseline()
                 )
 
                 Text(
-                    text = comment.date,
+                    text = comment.createdAt,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = modifier
@@ -74,14 +75,14 @@ fun CommentListItem(
                     painter = painterResource(id = R.drawable.round_more_horizontal),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = modifier.clickable { onMoreIconClick() }
+                    modifier = modifier.clickable { onMoreIconClick(comment) }
                 )
 
 
             }
             
             Text(
-                text = comment.comment,
+                text = comment.content,
                 style = MaterialTheme.typography.titleSmall
             )
         }
@@ -98,7 +99,7 @@ fun CommentListItemPreview() {
             color = MaterialTheme.colorScheme.surface
         ) {
             CommentListItem(
-                comment = sampleComments.first(),
+                comment = sampleComments.first().toDomainComment(),
                 onProfileClick = {},
                 onMoreIconClick = {}
             )

@@ -16,11 +16,19 @@ import com.example.socialapp.follows.data.FollowsRepositoryImpl
 import com.example.socialapp.follows.domain.FollowsRepository
 import com.example.socialapp.follows.domain.usecase.FollowOrUnfollowUseCase
 import com.example.socialapp.follows.domain.usecase.GetFollowableUsersUseCase
-import com.example.socialapp.post.data.PostRepositoryImpl
-import com.example.socialapp.post.domain.PostRepository
+import com.example.socialapp.follows.domain.usecase.GetFollowsUseCase
+import com.example.socialapp.post.data.remote.PostCommentsApiService
+import com.example.socialapp.post.data.repository.PostCommentsRepositoryImpl
+import com.example.socialapp.post.data.repository.PostRepositoryImpl
+import com.example.socialapp.post.domain.repository.PostCommentsRepository
+import com.example.socialapp.post.domain.repository.PostRepository
+import com.example.socialapp.post.domain.usecase.AddPostCommentUseCase
+import com.example.socialapp.post.domain.usecase.GetPostCommentsUseCase
+import com.example.socialapp.post.domain.usecase.GetPostUseCase
 import com.example.socialapp.post.domain.usecase.GetPostsUseCase
 import com.example.socialapp.post.domain.usecase.GetUserPostsUseCase
 import com.example.socialapp.post.domain.usecase.LikeOrUnlikePostUseCase
+import com.example.socialapp.post.domain.usecase.RemovePostCommentUseCase
 import org.koin.dsl.module
 
 private val authModule = module {
@@ -42,14 +50,26 @@ private val postModule = module {
     factory { GetPostsUseCase() }
     factory { LikeOrUnlikePostUseCase() }
     factory { GetUserPostsUseCase() }
+    factory { GetPostUseCase() }
 
     single<PostRepository> { PostRepositoryImpl(get(), get(), get()) }
 }
+
+private val postCommentModule = module {
+    factory { PostCommentsApiService() }
+    factory { GetPostCommentsUseCase() }
+    factory { AddPostCommentUseCase() }
+    factory { RemovePostCommentUseCase() }
+
+    single<PostCommentsRepository> { PostCommentsRepositoryImpl(get(), get(), get()) }
+}
+
 
 private val followsModule = module {
     factory { FollowsApiService() }
     factory { FollowOrUnfollowUseCase() }
     factory { GetFollowableUsersUseCase() }
+    factory { GetFollowsUseCase() }
 
     single<FollowsRepository> { FollowsRepositoryImpl(get(), get(), get()) }
 }
@@ -69,6 +89,7 @@ fun getSharedModules() = listOf(
     authModule,
     utilityModule,
     postModule,
+    postCommentModule,
     followsModule,
     accountModule
 )

@@ -1,5 +1,6 @@
 package com.example.socialapp.android.account.profile
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -42,8 +43,17 @@ class ProfileViewModel(
     //будет инициализирована позже.
     private lateinit var pagingManager: PagingManager<Post>
 
+    ////!!!!!!! Инициализация
+    /*private fun initializePagingManager(profileId: Long) {
+        if (!::pagingManager.isInitialized) {
+            pagingManager = createPagingManager(profileId)
+            Log.d("PagingManager", "PagingManager initialized for profileId: $profileId")
+        }
+    }*/
+
 
     private fun fetchProfile(userId: Long){
+        Log.d("PagingManager", "PagingManager is not initialized -- fetchProfile")
         viewModelScope.launch {
 
             getProfileUseCase(profileId = userId)
@@ -54,13 +64,19 @@ class ProfileViewModel(
                                 isLoading = false,
                                 errorMessage = it.message
                             )
+                            Log.d("PagingManager", "PagingManager is not initialized -- fetchProfile Result.Error -- ${it.message} and profileId = ${it} ")
                         }
                         is Result.Success -> {
                             userInfoUiState = userInfoUiState.copy(
                                 isLoading = false,
                                 profile = it.data
                             )
-                            fetchProfilePosts(profileId = userId)
+                            Log.d("PagingManager", "PagingManager is not initialized -- fetchProfile Result.Success")
+                            ////!!!!!!!! Инициализируем pagingManager перед загрузкой постов
+                            //initializePagingManager(userId)
+
+                            fetchProfilePosts(profileId = userId) // Загружаем посты после инициализации
+
                         }
                     }
                 }.collect()
@@ -112,6 +128,7 @@ class ProfileViewModel(
 
 
     private suspend fun fetchProfilePosts(profileId: Long) {
+        Log.d("PagingManager", "PagingManager is not initialized -- fetchProfilePOSTS")
         if (profilePostsUiState.isLoading || profilePostsUiState.posts.isNotEmpty()) return
 
         // проверяю инициализацию метода pagingManager, если нет то выполняю инициализацию
@@ -121,6 +138,24 @@ class ProfileViewModel(
 
         pagingManager.loadItems()
     }
+
+
+
+    private fun loadMorePosts() {
+        if (profilePostsUiState.endReached) return // достигли конца - ничего не делаем
+
+        //!!!!!!! Проверяем, инициализирован ли pagingManager
+        //if (!::pagingManager.isInitialized) {
+          //  Log.d("PagingManager", "PagingManager is not initialized when trying to load more posts")
+            //return // или инициализируем pagingManager здесь, если нужно
+        //}
+
+        viewModelScope.launch {
+            pagingManager.loadItems()
+        } // если нет - запускаем пагинацию
+    }
+
+
 
     private fun createPagingManager(profileId: Long): PagingManager<Post> {
         return DefaultPagingManager(
@@ -137,8 +172,12 @@ class ProfileViewModel(
                          endReached = true
                      )
                 } else {
+
+                    //проверка на уникальность? удаляем дубли
+                    val uniquePosts = (profilePostsUiState.posts + posts).distinctBy { it.postId }
+
                      profilePostsUiState.copy(
-                         posts = profilePostsUiState.posts + posts,
+                         posts = uniquePosts,//profilePostsUiState.posts + posts,
                          endReached = posts.size < Constants.DEFAULT_REQUEST_PAGE_SIZE
                      )
                 }
@@ -153,11 +192,6 @@ class ProfileViewModel(
                 profilePostsUiState = profilePostsUiState.copy(isLoading = isLoading)
             }
         )
-    }
-
-    private fun loadMorePosts() {
-        if (profilePostsUiState.endReached) return // достигли конца - ничего не делаем
-        viewModelScope.launch { pagingManager.loadItems() } // если нет - запускаем пагинацию
     }
 
 
@@ -219,7 +253,9 @@ class ProfileViewModel(
         when(uiAction) {
             is ProfileUiAction.FetchProfileAction -> fetchProfile(uiAction.profileId)
             is ProfileUiAction.FollowUserAction -> followUser(uiAction.profile)
-            is ProfileUiAction.LoadMorePostsAction -> loadMorePosts()
+            is ProfileUiAction.LoadMorePostsAction -> {
+                loadMorePosts()
+            }
             is ProfileUiAction.PostLikeAction -> likeOrDislikePost(uiAction.post)
         }
     }

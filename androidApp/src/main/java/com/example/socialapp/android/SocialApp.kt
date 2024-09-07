@@ -46,7 +46,11 @@ fun SocialApp(
     Scaffold(
         //?? need scaffoldState ??
         topBar = {
-            AppBar(navHostController = navHostController)
+            //val currentUserId = (uiState as? MainActivityUiState.Success)?.currentUser?.id
+            AppBar(
+                navHostController = navHostController,
+                //currentUserId = currentUserId
+            )
         }
 
 

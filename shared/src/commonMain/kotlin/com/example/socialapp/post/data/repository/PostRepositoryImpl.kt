@@ -1,4 +1,4 @@
-package com.example.socialapp.post.data
+package com.example.socialapp.post.data.repository
 
 import com.example.socialapp.common.data.local.UserPreferences
 import com.example.socialapp.common.data.local.UserSettings
@@ -9,7 +9,7 @@ import com.example.socialapp.common.domain.model.Post
 import com.example.socialapp.common.util.Constants
 import com.example.socialapp.common.util.DispatcherProvider
 import com.example.socialapp.common.util.Result
-import com.example.socialapp.post.domain.PostRepository
+import com.example.socialapp.post.domain.repository.PostRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.withContext
@@ -107,6 +107,34 @@ internal class PostRepositoryImpl(
     }
 
 
+
+
+    override suspend fun getPost(postId: Long): Result<Post> {
+        return withContext(dispatcher.io) {
+            try {
+                val userData = userPreferences.getUserData()
+
+                val apiResponse = postApiService.getPost(
+                    userToken = userData.token,
+                    postId = postId,
+                    currentUserId = userData.id
+                )
+
+                if (apiResponse.code == HttpStatusCode.OK) {
+                    Result.Success(data = apiResponse.data.post!!.toDomainPost())
+                } else {
+                    Result.Error(message = apiResponse.data.message!!)
+                }
+
+            }catch (ioException: IOException) {
+                Result.Error(message = Constants.NO_INTERNET_ERROR)
+            } catch (exception: Throwable) {
+                Result.Error(message = "${exception.cause}")
+            }
+        }
+    }
+
+
     private suspend fun fetchPosts(
         apiCall: suspend (UserSettings) -> PostsApiResponse  // принимает UserSettings возвращает PostsApiResponse
     ): Result<List<Post>> {
@@ -130,6 +158,8 @@ internal class PostRepositoryImpl(
             }
         }
     }
+
+
 
 
 

@@ -2,6 +2,11 @@ package com.example.socialapp.android.common.components
 
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -15,8 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.socialapp.android.R
+import com.example.socialapp.android.account.profile.ProfileScreen
 import com.example.socialapp.android.account.profile.ProfileUiAction
 import com.example.socialapp.android.account.profile.ProfileViewModel
 import com.example.socialapp.android.common.theme.SmallElevation
@@ -38,6 +47,7 @@ import org.koin.androidx.compose.koinViewModel
 fun AppBar(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
+    //currentUserId: Long?
 ) {
     val currentDestination = navHostController.currentDestinationAsState().value
 
@@ -50,7 +60,8 @@ fun AppBar(
                 //find the route of destination
                 Text(
                     text = stringResource(id = getAppBarTitle(currentDestination?.route))
-                )        
+                )
+
             },
             modifier = modifier,
 
@@ -63,6 +74,8 @@ fun AppBar(
                     visible = currentDestination?.route == HomeDestination.route
                 ) {
                     IconButton(onClick = {
+                        // тут навигация на мой профиль
+                        //navHostController.navigate(ProfileDestination.route ) // + "/${currentUserId}"
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.person_circle_icon),
@@ -87,12 +100,8 @@ fun AppBar(
                     null
                 }
             }
-
-
-
         )
     }
-
 }
 
 // Int - >  we return string res for title
@@ -123,7 +132,14 @@ fun shouldShowNavigationIcon(currentDestinationRoute: String?): Boolean{
 }
 
 
+@Preview
+@Composable
+private fun AppBarPreview() {
+    val navController = rememberNavController()
+    //val currentDestination = navController
 
+    AppBar(navHostController = navController)
+}
 
 
 

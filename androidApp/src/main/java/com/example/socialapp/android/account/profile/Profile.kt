@@ -12,7 +12,7 @@ import org.koin.androidx.compose.koinViewModel
 @Destination
 fun Profile(
     userId: Long,
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
 ) {
     val viewModel: ProfileViewModel = koinViewModel()
 

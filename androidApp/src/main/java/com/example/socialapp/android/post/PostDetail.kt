@@ -1,6 +1,7 @@
 package com.example.socialapp.android.post
 
 import androidx.compose.runtime.Composable
+import com.example.socialapp.android.destinations.ProfileDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -9,7 +10,7 @@ import org.koin.androidx.compose.koinViewModel
 @Destination
 fun PostDetail(
     navigator: DestinationsNavigator,
-    postId: String
+    postId: Long
 ) {
 
     val viewModel: PostDetailViewModel = koinViewModel()
@@ -20,7 +21,11 @@ fun PostDetail(
         //onCommentMoreIconClick = {},
         //onProfileClick = {},
         //onAddCommentClick = { /*TODO*/ },
-        fetchData = {viewModel.fetchData(postId = postId)}
+        postId = postId,
+        onProfileNavigation = { navigator.navigate(ProfileDestination(it))},
+        onUiAction = viewModel::onUiAction
     )
 
 }
+
+//navigator.navigate(ProfileDestination(it)

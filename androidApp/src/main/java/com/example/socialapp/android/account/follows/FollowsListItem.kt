@@ -17,13 +17,14 @@ import androidx.compose.ui.unit.dp
 import com.example.socialapp.android.common.components.CircleImage
 import com.example.socialapp.android.common.theme.LargeSpacing
 import com.example.socialapp.android.common.theme.MediumSpacing
+import com.example.socialapp.android.common.util.toCurrentUrl
 
 @Composable
 fun FollowsListItem(
     modifier: Modifier = Modifier,
     name: String,
     bio: String,
-    imageUrl: String,
+    imageUrl: String?,
     onItemClick: () -> Unit
 ) {
     Row(
@@ -40,7 +41,7 @@ fun FollowsListItem(
 
         CircleImage(
             modifier = modifier.size(40.dp),
-            url = imageUrl,
+            url = imageUrl?.toCurrentUrl(),
             onClick = {}
         )
 

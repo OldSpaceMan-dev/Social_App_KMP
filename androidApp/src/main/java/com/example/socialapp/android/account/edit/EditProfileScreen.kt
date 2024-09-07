@@ -21,6 +21,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -35,14 +36,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.socialapp.android.R
 import com.example.socialapp.android.common.components.CircleImage
 import com.example.socialapp.android.common.components.CustomTextField
+import com.example.socialapp.android.common.fake_data.sampleProfiles
 import com.example.socialapp.android.common.theme.ButtonHeight
 import com.example.socialapp.android.common.theme.ExtraLargeSpacing
 import com.example.socialapp.android.common.theme.LargeSpacing
 import com.example.socialapp.android.common.theme.SmallElevation
+import com.example.socialapp.android.common.theme.SocialAppTheme
 
 
 @Composable
@@ -247,8 +251,27 @@ fun BioTextField(
 }
 
 
+@Preview
+@Composable
+private fun EditProfileScreenPreview() {
+    SocialAppTheme {
+        Surface(color = MaterialTheme.colorScheme.surface) {
 
+            EditProfileScreen(
+                editProfileUiState = EditProfileUiState(
+                    profile = sampleProfiles.first()
+                ),
+                bioTextFieldValue = TextFieldValue("Sample Bio"),
+                onNameChange = {},
+                onBioChange = {},
+                onUploadButtonClick = { /*TODO*/ },
+                onUploadSucceed = { /*TODO*/ },
+                fetchProfile = {}
+            )
+        }
+    }
 
+}
 
 
 

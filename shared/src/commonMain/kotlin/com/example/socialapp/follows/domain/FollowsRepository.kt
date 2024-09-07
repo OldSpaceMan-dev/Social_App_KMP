@@ -9,4 +9,8 @@ interface FollowsRepository {
 
     suspend fun followOrUnfollow(followedUserId: Long, shouldFollow: Boolean): Result<Boolean>
     // followedUserId - id person на которого мы хотим подписаться или не подписываться
+
+
+//followsType - это либо followers или following апи метод
+    suspend fun getFollows(userId: Long, page: Int, pageSize: Int, followsType: Int): Result<List<FollowsUser>>
 }

@@ -7,6 +7,7 @@ import com.example.socialapp.common.domain.model.FollowsUser
 import com.example.socialapp.common.util.Constants
 import com.example.socialapp.common.util.DispatcherProvider
 import com.example.socialapp.common.util.Result
+import com.example.socialapp.common.util.safeApiCall
 import com.example.socialapp.follows.domain.FollowsRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.utils.io.errors.IOException
@@ -81,7 +82,50 @@ internal class FollowsRepositoryImpl(
             }
         }
     }
+
+
+    // получить список подписчиков и последователей
+    override suspend fun getFollows(
+        userId: Long,
+        page: Int,
+        pageSize: Int,
+        followsType: Int
+    ): Result<List<FollowsUser>> {
+        return safeApiCall(dispatcher) { // исользуем написанную утилиту для обработки исключений
+            val currentUserData = userPreferences.getUserData()
+            val  apiResponse = followsApiService.getFollows(
+                userToken = currentUserData.token,
+                userId = userId,
+                page = page,
+                pageSize = pageSize,
+                followsEndPoint = if (followsType == 1) "followers" else "following"
+            )
+
+            if (apiResponse.code == HttpStatusCode.OK) {
+                Result.Success(data = apiResponse.data.follows.map { it.toDomainFollowUser() })
+            } else {
+                Result.Error(message = "${apiResponse.data.message}")
+            }
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
