@@ -25,7 +25,7 @@
     <string name="following_text">"Following"</string>
     <string name="profile_destination_title">Profile</string>
     <string name="user_bio_hint">Type your bio</string>
-    <string name="upload_changes_text">Upload changes</string>
+    <string name="upload_changes_text">Save changes</string>
     <string name="could_not_load_profile">Oops, we could not load your profile!</string>
     <string name="edit_profile_destination_title">Edit profile</string>
     <string name="edit_profile_label">Edit profile</string>
