@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.socialapp.account.domain.model.Profile
 import com.example.socialapp.android.common.util.Constants
 import com.example.socialapp.android.common.util.DefaultPagingManager
 import com.example.socialapp.android.common.util.Event
@@ -50,6 +51,7 @@ class HomeScreenViewModel(
             .onEach {
                 when (it) {
                     is Event.PostUpdated -> updatePost(it.post)
+                    is Event.ProfileUpdated -> updateCurrentUserPostsProfileData(it.profile)
                 }
             }.launchIn(viewModelScope)
     }
@@ -72,23 +74,6 @@ class HomeScreenViewModel(
                 getFollowableUsersUseCase()
             } // вставим ниже
             //val users = getFollowableUsersUseCase()
-
-
-            /* use useCase
-             onBoardingUiState = onBoardingUiState.copy(
-                 isLoading = false,
-                 users = sampleUsers,
-                 shouldShowOnBoarding = true
-             )
-              */
-
-            /* firs pagination realization
-            postsFeedUiState = postsFeedUiState.copy(
-                isLoading = false,
-                posts = samplePosts,
-
-            )
-            */
 
             pagingManager.apply {
                 reset()
@@ -254,6 +239,22 @@ class HomeScreenViewModel(
                 if (it.postId == post.postId) post else it
             }
         )
+    }
+
+    private fun updateCurrentUserPostsProfileData(profile: Profile) {
+        postsFeedUiState = postsFeedUiState.copy(
+            posts = postsFeedUiState.posts.map {
+                if (it.userId == profile.id) { //user onew this posts
+                    it.copy(
+                        userName = profile.name,
+                        userImageUrl = profile.imageUrl
+                    )
+                } else {
+                    it
+                }
+            }
+        )
+
     }
 
 

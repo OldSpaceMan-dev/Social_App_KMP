@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.socialapp.android.common.components.PostListItem
+import com.example.socialapp.android.common.fake_data.samplePosts
+import com.example.socialapp.android.common.fake_data.sampleUsers
 import com.example.socialapp.android.common.theme.LargeSpacing
 import com.example.socialapp.android.common.theme.MediumSpacing
 
@@ -157,8 +159,13 @@ fun HomeScreenPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             HomeScreen(
-                onBoardingUiState = OnBoardingUiState(),
-                postsFeedUiState = PostsFeedUiState(),
+                onBoardingUiState = OnBoardingUiState(
+                    shouldShowOnBoarding = true,
+                    followableUsers = sampleUsers.map { it.toFollowsUser() }
+                ),
+                postsFeedUiState = PostsFeedUiState(
+                    posts = samplePosts.map { it.toDomainPost() }
+                ),
                 homeRefreshState = HomeRefreshState(),
                 onPostDetailNavigation = {},
                 onProfileNavigation = {},

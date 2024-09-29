@@ -23,6 +23,7 @@ fun UserSettings.toAuthResultData(): AuthResultData{
     )
 }
 
+//mapper
 fun AuthResultData.toUserSettings(): UserSettings {
     return UserSettings(
         id, name, bio, avatar, token, followersCount, followingCount

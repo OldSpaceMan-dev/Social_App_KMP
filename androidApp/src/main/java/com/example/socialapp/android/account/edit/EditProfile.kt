@@ -19,10 +19,12 @@ fun EditProfile(
 
         onNameChange = viewModel::onNameChange,
         onBioChange = viewModel::onBioChange,
-
-        onUploadButtonClick = { viewModel.uploadProfile() },
+        userId = userId,
+        onUiAction = viewModel::onUiAction,
         onUploadSucceed = { navigator.navigateUp() },
-        fetchProfile = { viewModel.fetchProfile(userId) }
+
+        //onUploadButtonClick = { viewModel.uploadProfile() },
+        //fetchProfile = { viewModel.fetchProfile(userId) }
     )
 
 

@@ -47,7 +47,7 @@ import org.koin.androidx.compose.koinViewModel
 fun AppBar(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
-    //currentUserId: Long?
+
 ) {
     val currentDestination = navHostController.currentDestinationAsState().value
 
@@ -138,7 +138,7 @@ private fun AppBarPreview() {
     val navController = rememberNavController()
     //val currentDestination = navController
 
-    AppBar(navHostController = navController)
+    //AppBar(navHostController = navController)
 }
 
 

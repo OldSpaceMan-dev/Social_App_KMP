@@ -107,13 +107,13 @@ fun FollowsScreen(
             ) {
                 if (followsType == 1) {
                     Text(
-                        text = "You don't have any followers.",
+                        text = "The list of followers is empty.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 } else {
                     Text(
-                        text = "You're not following anyone.",
+                        text = "The following list is empty.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onBackground
                     )

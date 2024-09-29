@@ -8,6 +8,7 @@ import com.example.socialapp.android.account.follows.FollowsViewModel
 import com.example.socialapp.android.account.profile.ProfileViewModel
 import com.example.socialapp.android.auth.login.LoginViewModel
 import com.example.socialapp.android.auth.singup.SignUpViewModel
+import com.example.socialapp.android.common.util.ImageBytesReader
 import com.example.socialapp.common.data.UserSettingsSerializer
 import com.example.socialapp.android.home.HomeScreenViewModel
 import com.example.socialapp.android.post.PostDetailViewModel
@@ -23,8 +24,10 @@ val appModule = module { //koin
     viewModel { HomeScreenViewModel(get(), get(), get(), get()) }
     viewModel { PostDetailViewModel(get(), get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get(), get()) }
-    viewModel { EditProfileViewModel() }
+    viewModel { EditProfileViewModel(get(), get(), get()) }
     viewModel { FollowsViewModel(get()) }
+    //для загрузки изображения
+    single { ImageBytesReader(androidContext()) }
 
 }
 

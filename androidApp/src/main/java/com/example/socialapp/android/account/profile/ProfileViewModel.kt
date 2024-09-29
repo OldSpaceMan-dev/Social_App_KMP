@@ -9,8 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.socialapp.account.domain.model.Profile
 import com.example.socialapp.account.domain.usecase.GetProfileUseCase
 
-import com.example.socialapp.android.common.fake_data.samplePosts
-import com.example.socialapp.android.common.fake_data.sampleProfiles
+
 import com.example.socialapp.android.common.util.Constants
 import com.example.socialapp.android.common.util.DefaultPagingManager
 import com.example.socialapp.android.common.util.Event
@@ -23,6 +22,7 @@ import com.example.socialapp.post.domain.usecase.GetUserPostsUseCase
 import com.example.socialapp.post.domain.usecase.LikeOrUnlikePostUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -50,6 +50,17 @@ class ProfileViewModel(
             Log.d("PagingManager", "PagingManager initialized for profileId: $profileId")
         }
     }*/
+
+    init {
+        EventBus.events
+            .onEach {
+                when (it) {
+                    is Event.PostUpdated -> updatePost(it.post)
+                    is Event.ProfileUpdated -> updateProfile(it.profile)
+                }
+            }
+            .launchIn(viewModelScope)
+    }
 
 
     private fun fetchProfile(userId: Long){
@@ -247,6 +258,26 @@ class ProfileViewModel(
         )
     }
 
+
+    private fun updateProfile(profile: Profile) {
+        userInfoUiState = userInfoUiState.copy(
+            profile = profile
+        )
+
+        profilePostsUiState = profilePostsUiState.copy(
+            posts = profilePostsUiState.posts.map {
+                if(it.userId == profile.id) {
+                    it.copy(
+                        userName = profile.name,
+                        userImageUrl = profile.imageUrl
+                    )
+                } else {
+                    it
+                }
+            }
+        )
+
+    }
 
 
     fun onUiAction(uiAction: ProfileUiAction) {

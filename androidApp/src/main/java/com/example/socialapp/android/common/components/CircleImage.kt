@@ -1,5 +1,6 @@
 package com.example.socialapp.android.common.components
 
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.CircleShape
@@ -15,10 +16,11 @@ import com.example.socialapp.android.R
 fun CircleImage(
     modifier: Modifier = Modifier,
     url: String?,
+    uri: Uri? = null,
     onClick: () -> Unit
 ) {
     AsyncImage(
-        model = url,
+        model = uri ?: url,
         contentDescription = null,
         modifier = modifier
             .clip(CircleShape)

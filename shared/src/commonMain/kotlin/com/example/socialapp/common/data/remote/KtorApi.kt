@@ -43,4 +43,10 @@ internal abstract class KtorApi {
         }
     }
 
+    //используется для отправки форм с файлами.
+    fun HttpRequestBuilder.setupMultipartRequest() {
+        contentType(ContentType.MultiPart.FormData)
+    }
+
+
 }

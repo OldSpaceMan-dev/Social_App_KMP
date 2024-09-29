@@ -8,4 +8,6 @@ interface ProfileRepository {
 
     fun getProfile(profileId: Long): Flow<Result<Profile>>
 
+    suspend fun updateProfile(profile: Profile, imageBytes: ByteArray?): Result<Profile>
+
 }
