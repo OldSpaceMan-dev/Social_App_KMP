@@ -46,11 +46,15 @@ fun SocialApp(
     Scaffold(
         //?? need scaffoldState ??
         topBar = {
-            //val currentUserId = (uiState as? MainActivityUiState.Success)?.currentUser!!.id
-            AppBar(
-                navHostController = navHostController,
-                //currentUserId = currentUserId
-            )
+            val currentUserId = (uiState as? MainActivityUiState.Success)?.currentUser?.id
+            currentUserId?.let {
+                // Только если currentUserId не равен null, вызываем AppBar
+                AppBar(
+                    navHostController = navHostController,
+                    currentUserId = it
+                )
+            }
+
         }
 
 
@@ -64,6 +68,8 @@ fun SocialApp(
         )
 
     }
+
+
 
 
     when(uiState){
@@ -82,6 +88,11 @@ fun SocialApp(
             }
         }
     }
+
+
+
+
+
 
 
     /*

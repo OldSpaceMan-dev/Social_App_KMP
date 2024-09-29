@@ -39,6 +39,7 @@ import com.example.socialapp.android.destinations.ProfileDestination
 import com.example.socialapp.android.destinations.SignUpDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.utils.currentDestinationAsState
 import org.koin.androidx.compose.koinViewModel
 
@@ -47,7 +48,7 @@ import org.koin.androidx.compose.koinViewModel
 fun AppBar(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
-
+    currentUserId: Long
 ) {
     val currentDestination = navHostController.currentDestinationAsState().value
 
@@ -75,6 +76,7 @@ fun AppBar(
                 ) {
                     IconButton(onClick = {
                         // тут навигация на мой профиль
+                        navHostController.navigate(ProfileDestination(currentUserId))
                         //navHostController.navigate(ProfileDestination.route ) // + "/${currentUserId}"
                     }) {
                         Icon(
