@@ -1,6 +1,7 @@
 package com.example.socialapp.android.common.components
 
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -70,6 +71,38 @@ fun AppBar(
                 containerColor = MaterialTheme.colorScheme.outlineVariant
             ),
             actions = {
+                AnimatedContent(targetState = currentDestination?.route,
+                    label = ""
+                ) { destinationRoute ->
+                    if (destinationRoute == HomeDestination.route) {
+                        IconButton(onClick = {
+                            // тут навигация на мой профиль
+                            navHostController.navigate(ProfileDestination(currentUserId))
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.person_circle_icon),
+                                contentDescription = null
+                            )
+                        }
+                    } else if (shouldShowNavigationIcon(destinationRoute)) {
+                        IconButton(onClick = {
+                            // Переход на главный экран
+                            navHostController.navigate(HomeDestination.route) {
+                                popUpTo(HomeDestination.route) { inclusive = true }
+                            }
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.home_icon), // Добавьте свой ресурс иконки дома
+                                contentDescription = stringResource(id = R.string.home_destination_title)
+                            )
+                        }
+                    }
+
+                    
+                }
+                      
+                
+                /*
                 //show icon profile on HomeScreen
                 AnimatedVisibility(
                     visible = currentDestination?.route == HomeDestination.route
@@ -85,6 +118,22 @@ fun AppBar(
                         )
                     }
                 }
+                // Иконка дома показывается на всех экранах, кроме главного
+                if (shouldShowNavigationIcon(currentDestination?.route)) {
+                    IconButton(onClick = {
+                        // Переход на главный экран
+                        navHostController.navigate(HomeDestination.route) {
+                            popUpTo(HomeDestination.route) { inclusive = true }
+                        }
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.home_icon), // Добавьте свой ресурс иконки дома
+                            contentDescription = stringResource(id = R.string.home_destination_title)
+                        )
+                    }
+                }
+                
+                 */
 
             },
 
