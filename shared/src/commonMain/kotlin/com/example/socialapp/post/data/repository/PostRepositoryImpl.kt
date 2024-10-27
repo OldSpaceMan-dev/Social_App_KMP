@@ -3,16 +3,20 @@ package com.example.socialapp.post.data.repository
 import com.example.socialapp.common.data.local.UserPreferences
 import com.example.socialapp.common.data.local.UserSettings
 import com.example.socialapp.common.data.model.LikeParams
+import com.example.socialapp.common.data.model.NewPostParams
 import com.example.socialapp.common.data.model.PostsApiResponse
 import com.example.socialapp.common.data.remote.PostApiService
 import com.example.socialapp.common.domain.model.Post
 import com.example.socialapp.common.util.Constants
 import com.example.socialapp.common.util.DispatcherProvider
 import com.example.socialapp.common.util.Result
+import com.example.socialapp.common.util.safeApiCall
 import com.example.socialapp.post.domain.repository.PostRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 internal class PostRepositoryImpl(
     private val postApiService: PostApiService,
@@ -133,6 +137,48 @@ internal class PostRepositoryImpl(
             }
         }
     }
+
+
+
+    override suspend fun createPost(
+        caption: String,
+        imageBytes: ByteArray
+    ): Result<Post> {
+        return safeApiCall(dispatcher) {
+            val currentUserData = userPreferences.getUserData()
+
+            //преобразем данные в json строку - отправляемую на сервер
+            val postData = Json.encodeToString( //преобразует данные которые понятные беку
+                serializer = NewPostParams.serializer(), // те данные которые будут с бека
+                value = NewPostParams(
+                    caption = caption,
+                    userId = currentUserData.id
+                )
+            )
+
+            val apiResponse = postApiService.createPost(
+                userToken = currentUserData.token,
+                newPostDate = postData,
+                imageBytes = imageBytes
+            )
+
+            if (apiResponse.code == HttpStatusCode.OK) {
+                Result.Success(
+                    // сейчас мы возвращали только подстверждение загрузки
+                    // теперь мы будет сразу без дополнительного запроса преобразовавыть данные для отправляемого поста
+                    //+ изменим логику на беке - вернем данные поста вместе со статусом
+                    //!!.toDomainPost() - разворачиваем данные в читаемый формат Android системой
+                    data = apiResponse.data.post!!.toDomainPost()
+                )
+            } else {
+                Result.Error(message = apiResponse.data.message ?: Constants.UNEXPECTED_ERROR)
+            }
+
+        }
+    }
+
+
+
 
 
     private suspend fun fetchPosts(

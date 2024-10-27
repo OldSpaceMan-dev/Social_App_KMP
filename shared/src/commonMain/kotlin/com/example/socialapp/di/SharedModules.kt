@@ -24,6 +24,7 @@ import com.example.socialapp.post.data.repository.PostRepositoryImpl
 import com.example.socialapp.post.domain.repository.PostCommentsRepository
 import com.example.socialapp.post.domain.repository.PostRepository
 import com.example.socialapp.post.domain.usecase.AddPostCommentUseCase
+import com.example.socialapp.post.domain.usecase.CreatePostUseCase
 import com.example.socialapp.post.domain.usecase.GetPostCommentsUseCase
 import com.example.socialapp.post.domain.usecase.GetPostUseCase
 import com.example.socialapp.post.domain.usecase.GetPostsUseCase
@@ -52,6 +53,7 @@ private val postModule = module {
     factory { LikeOrUnlikePostUseCase() }
     factory { GetUserPostsUseCase() }
     factory { GetPostUseCase() }
+    factory { CreatePostUseCase() }
 
     single<PostRepository> { PostRepositoryImpl(get(), get(), get()) }
 }

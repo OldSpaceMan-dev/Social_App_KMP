@@ -285,7 +285,8 @@ fun PostDetailScreen(
                         onProfileClick = {onProfileNavigation(postUiState.post.userId)},
                         onLikeClick = { onUiAction(PostDetailUiAction.LikeOrDislikePostAction(it)) },
                         onCommentClick = { /*TODO*/ },
-                        isDetailScreen = true//show all description
+                        isDetailScreen = true,//show all description,
+                        onPostDotsClick = { /*TODO*/ }
                     )
                 }
 

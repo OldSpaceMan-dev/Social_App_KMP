@@ -12,6 +12,7 @@ import com.example.socialapp.android.common.util.ImageBytesReader
 import com.example.socialapp.common.data.UserSettingsSerializer
 import com.example.socialapp.android.home.HomeScreenViewModel
 import com.example.socialapp.android.post.PostDetailViewModel
+import com.example.socialapp.android.post.create_post.CreatePostViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -28,6 +29,7 @@ val appModule = module { //koin
     viewModel { FollowsViewModel(get()) }
     //для загрузки изображения
     single { ImageBytesReader(androidContext()) }
+    viewModel { CreatePostViewModel(get(), get()) }
 
 }
 

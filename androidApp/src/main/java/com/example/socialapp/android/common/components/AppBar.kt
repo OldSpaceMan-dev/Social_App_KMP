@@ -30,6 +30,7 @@ import com.example.socialapp.android.account.profile.ProfileScreen
 import com.example.socialapp.android.account.profile.ProfileUiAction
 import com.example.socialapp.android.account.profile.ProfileViewModel
 import com.example.socialapp.android.common.theme.SmallElevation
+import com.example.socialapp.android.destinations.CreatePostDestination
 import com.example.socialapp.android.destinations.EditProfileDestination
 import com.example.socialapp.android.destinations.FollowersDestination
 import com.example.socialapp.android.destinations.FollowingDestination
@@ -168,6 +169,7 @@ private fun getAppBarTitle(currentDestinationRoute: String?): Int{
         EditProfileDestination.route -> R.string.edit_profile_destination_title
         FollowingDestination.route -> R.string.following_text
         FollowersDestination.route -> R.string.followers_text
+        CreatePostDestination.route -> R.string.create_post_destination_title
         else -> R.string.no_destination_title
     }
 }
@@ -178,7 +180,8 @@ fun shouldShowNavigationIcon(currentDestinationRoute: String?): Boolean{
     return !(
             currentDestinationRoute == LoginDestination.route ||
             currentDestinationRoute == SignUpDestination.route ||
-            currentDestinationRoute == HomeDestination.route
+            currentDestinationRoute == HomeDestination.route ||
+            currentDestinationRoute == null
             )
 }
 

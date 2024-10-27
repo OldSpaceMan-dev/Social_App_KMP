@@ -51,8 +51,9 @@ fun PostListItem(
     onProfileClick: (userId: Long) -> Unit,
     onLikeClick: (Post) -> Unit,
     onCommentClick: (Post) -> Unit,
-    isDetailScreen: Boolean = false
+    isDetailScreen: Boolean = false,
 
+    onPostDotsClick: (postId: Long) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -78,6 +79,9 @@ fun PostListItem(
             date = post.createdAt,
             onProfileClick = {
                 onProfileClick(post.userId)
+            },
+            onPostDotsClick = {
+                onPostDotsClick(post.postId)
             }
         )
 
@@ -128,7 +132,8 @@ fun PostHeader(
     name: String,
     profileUrl: String?,
     date: String,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onPostDotsClick: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -185,7 +190,8 @@ fun PostHeader(
         Icon(
             painter = painterResource(id = R.drawable.round_more_horizontal),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant //оттенок, который будет применен к painter. Если указан цвет.
+            tint = MaterialTheme.colorScheme.onSurfaceVariant, //оттенок, который будет применен к painter. Если указан цвет.
+            modifier = modifier.clickable(onClick = onPostDotsClick)
         )
 
     }
@@ -271,7 +277,8 @@ private fun PostListItemPreview() {
                 //onPostClick = { },
                 onProfileClick = {},
                 onCommentClick = {},
-                onLikeClick = {}
+                onLikeClick = {},
+                onPostDotsClick = {}
             )
         }
     }
@@ -291,7 +298,8 @@ private fun PostHeaderPreview() {
                 name = "Mr Smith",
                 profileUrl = "",
                 date = "20 min",
-                onProfileClick = {}
+                onProfileClick = {},
+                onPostDotsClick = {}
             )
         }
     }

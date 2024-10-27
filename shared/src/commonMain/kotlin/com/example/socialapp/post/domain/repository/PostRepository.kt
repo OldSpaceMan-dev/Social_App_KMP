@@ -13,5 +13,6 @@ interface PostRepository {
 
     suspend fun getPost(postId: Long): Result<Post>
 
+    suspend fun createPost(caption: String, imageBytes: ByteArray): Result<Post>
 
 }
