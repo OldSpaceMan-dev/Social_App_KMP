@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.example.socialapp.android.destinations.EditProfileDestination
 import com.example.socialapp.android.destinations.FollowersDestination
 import com.example.socialapp.android.destinations.FollowingDestination
+import com.example.socialapp.android.destinations.PostDetailDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -32,6 +33,6 @@ fun Profile(
         },
         onFollowersScreenNavigation = {navigator.navigate(FollowersDestination(userId))},
         onFollowingScreenNavigation = {navigator.navigate(FollowingDestination(userId))},
-        onPostDetailNavigation = {}
+        onPostDetailNavigation = {navigator.navigate(PostDetailDestination(it.postId))}
     )
 }
