@@ -1,0 +1,29 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:width="24dp"
+    android:viewportHeight="48"
+    android:viewportWidth="24"
+    android:tint="#000000">
+
+    <group
+        android:rotation="0"
+        android:pivotX="12"
+        android:pivotY="24">
+
+        <!-- Первый квадрат -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M3,3h18v12H3V3z"/>
+
+        <!-- Второй квадрат с отступом -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M3,18h18v12H3V18z"/>
+
+        <!-- Третий квадрат с отступом -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M3,33h18v12H3V33z"/>
+
+    </group>
+</vector>

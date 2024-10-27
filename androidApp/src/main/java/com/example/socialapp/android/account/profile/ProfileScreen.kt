@@ -1,13 +1,18 @@
 package com.example.socialapp.android.account.profile
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,9 +21,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.List
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,9 +39,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -38,10 +56,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.socialapp.android.R
 import com.example.socialapp.android.common.components.CircleImage
 import com.example.socialapp.android.common.components.FollowButton
 import com.example.socialapp.android.common.components.PostListItem
+import com.example.socialapp.android.common.fake_data.samplePosts
+import com.example.socialapp.android.common.fake_data.sampleProfiles
 import com.example.socialapp.android.common.theme.LargeSpacing
 import com.example.socialapp.android.common.theme.MediumSpacing
 import com.example.socialapp.android.common.theme.SmallSpacing
@@ -68,7 +89,10 @@ fun ProfileScreen(
 ) {
     //Создает и запоминает состояние списка
     val listState = rememberLazyListState()
+    val listGridState = rememberLazyGridState()
 
+
+    //TODO для строчной пагинации
     //paginashion - show last post and reload new post
     val shouldFetchMorePosts by remember {
         //derived-наследуемый (полученный)
@@ -80,17 +104,34 @@ fun ProfileScreen(
 
             //если нет ни одного элемента
             if (layoutInfo.totalItemsCount == 0) {
+                Log.d("ProfileScreen", "No items in list, shouldFetchMorePostsList: false")
                 false
             }else {
                 // Получает последний видимый элемент.
-                val lastVisibleItem = visibleItemsInfo.last()
+                //val lastVisibleItem = visibleItemsInfo.last()
+
+                // Получает последний видимый элемент.
+                val lastVisibleItem = visibleItemsInfo.lastOrNull()
+                val shouldFetch = lastVisibleItem != null && (lastVisibleItem.index + 1 == layoutInfo.totalItemsCount)
+
+                Log.d("ProfileScreen", "lastVisibleItem: $lastVisibleItem, shouldFetchMorePostsList: $shouldFetch")
+                shouldFetch
+
                 //+1 тк индексы в списке с 0, а кол-во эл с 1
                 //те индекс 9 (last) +1 а элем=10
-                (lastVisibleItem.index + 1 == layoutInfo.totalItemsCount)
+                //(lastVisibleItem.index + 1 == layoutInfo.totalItemsCount)
             }
 
         }
     }
+
+
+
+
+    val displayType = remember {
+        mutableStateOf(DisplayType.LIST)
+    }
+
 
     //circle indicator
     if (userInfoUiState.isLoading){
@@ -101,66 +142,161 @@ fun ProfileScreen(
             CircularProgressIndicator()
         }
     }else{
-        LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            state = listState
-        ){
-            item(key = "header_section"){
-                ProfileHeaderSection(
-                    imageUrl = userInfoUiState.profile?.imageUrl ?: "",
-                    name = userInfoUiState.profile?.name ?: "",
-                    bio = userInfoUiState.profile?.bio ?: "",
-                    followersCount = userInfoUiState.profile?.followersCount ?: 0,
-                    followingCount = userInfoUiState.profile?.followingCount ?: 0,
 
-                    isFollowing = userInfoUiState.profile?.isFollowing ?: false,
-                    isCurrentUser = userInfoUiState.profile?.isOwnProfile ?:false,
 
-                    onButtonClick = onFollowButtonClick,
-                    onFollowersClick = onFollowersScreenNavigation,
-                    onFollowingClick = onFollowingScreenNavigation
-                )
-            }
+        if (displayType.value == DisplayType.LIST) {
 
-            items(
-                items = profilePostsUiState.posts,
-                key = {post -> post.postId}
+            LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                state = listState
             ){
-                PostListItem(
-                    post = it,
-                    onPostClick = {},
-                    onProfileClick = {},
-                    onLikeClick = {post ->
-                        onUiAction(ProfileUiAction.PostLikeAction(post))
-                    },
-                    onCommentClick = {}
-                )
-            }
+                item(key = "header_section"){
+                    ProfileHeaderSection(
+                        imageUrl = userInfoUiState.profile?.imageUrl ?: "",
+                        name = userInfoUiState.profile?.name ?: "",
+                        bio = userInfoUiState.profile?.bio ?: "",
+                        followersCount = userInfoUiState.profile?.followersCount ?: 0,
+                        followingCount = userInfoUiState.profile?.followingCount ?: 0,
 
-            //loading spinner
-            if (profilePostsUiState.isLoading){
-                item(key = Constants.LOADING_MORE_ITEM_KEY) {
-                    Box(
-                        modifier = modifier
-                            .fillMaxSize()
-                            .padding(
-                                vertical = MediumSpacing,
-                                horizontal = LargeSpacing
-                            ),
-                        contentAlignment = Alignment.Center
-                    ){
-                        CircularProgressIndicator()
+                        isFollowing = userInfoUiState.profile?.isFollowing ?: false,
+                        isCurrentUser = userInfoUiState.profile?.isOwnProfile ?:false,
+
+                        onButtonClick = onFollowButtonClick,
+                        onFollowersClick = onFollowersScreenNavigation,
+                        onFollowingClick = onFollowingScreenNavigation,
+
+                        displayType = displayType.value,
+                        onDisplayTypeChange = {displayType.value = it}
+                    )
+                }
+
+                items(
+                    items = profilePostsUiState.posts,
+                    key = {post -> post.postId}
+                ){
+                    PostListItem(
+                        post = it,
+                        onPostClick = {},
+                        onProfileClick = {},
+                        onLikeClick = {post ->
+                            onUiAction(ProfileUiAction.PostLikeAction(post))
+                        },
+                        onCommentClick = {},
+                        onPostDotsClick = {}
+                    )
+                }
+
+                //loading spinner
+                if (profilePostsUiState.isLoading){
+                    item(key = Constants.LOADING_MORE_ITEM_KEY) {
+                        Box(
+                            modifier = modifier
+                                .fillMaxSize()
+                                .padding(
+                                    vertical = MediumSpacing,
+                                    horizontal = LargeSpacing
+                                ),
+                            contentAlignment = Alignment.Center
+                        ){
+                            CircularProgressIndicator()
+                        }
                     }
                 }
+
             }
 
+        } else {
+
+            LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                state = listState
+            ) {
+                // Отдельный элемент для ProfileHeaderSection
+                item {
+                    ProfileHeaderSection(
+                        imageUrl = userInfoUiState.profile?.imageUrl ?: "",
+                        name = userInfoUiState.profile?.name ?: "",
+                        bio = userInfoUiState.profile?.bio ?: "",
+                        followersCount = userInfoUiState.profile?.followersCount ?: 0,
+                        followingCount = userInfoUiState.profile?.followingCount ?: 0,
+
+                        isFollowing = userInfoUiState.profile?.isFollowing ?: false,
+                        isCurrentUser = userInfoUiState.profile?.isOwnProfile ?: false,
+
+                        onButtonClick = onFollowButtonClick,
+                        onFollowersClick = onFollowersScreenNavigation,
+                        onFollowingClick = onFollowingScreenNavigation,
+
+                        displayType = displayType.value,
+                        onDisplayTypeChange = { displayType.value = it }
+                    )
+                }
+
+                // Встраивание LazyVerticalGrid внутри Box для ограничения его высоты
+                item {
+                    Box(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .height(600.dp) // задайте необходимую высоту
+                    ) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            modifier = Modifier.fillMaxSize(),
+                            state = listGridState
+                        ) {
+                            items(profilePostsUiState.posts) { post ->
+                                Box(
+                                    modifier = Modifier
+                                        .padding(0.5.dp) // Отступы между изображениями
+                                        .fillMaxWidth()
+                                        .aspectRatio(1.0f)
+                                        .clickable { onPostDetailNavigation(post) }
+                                        //.border(0.2.dp, Color.Gray) // Рамка вокруг изображения
+                                ) {
+                                    AsyncImage(
+                                        model = post.imageUrl.toCurrentUrl(),
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                // Элемент загрузки
+                if (profilePostsUiState.isLoading) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(
+                                    vertical = MediumSpacing,
+                                    horizontal = LargeSpacing
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
+
+
+            }
+
+
+
         }
+
+
+
     }
 
     //we need fetchData call back
     LaunchedEffect(key1 = Unit){
         onUiAction(ProfileUiAction.FetchProfileAction(profileId = profileId))
     }
+
 
     //send request to load more post
     LaunchedEffect(key1 = shouldFetchMorePosts) {
@@ -169,9 +305,31 @@ fun ProfileScreen(
         }
     }
 
+
+    //TODO для сетки пагинации
+    // Логика пагинации для сетки LazyVerticalGrid (listGridState)
+    LaunchedEffect(listGridState) {
+        snapshotFlow { //наблюдение за изменениями внутри LazyGridState
+            //получаем список видимых элементов - если нет элем то lastOrNull - null или ничего
+            listGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+        }.collect { lastVisibleIndex ->
+            //когда прокручивает LazyVerticalGrid и последний видимый элемент изменяется,
+            // срабатывает новый вызов collect с обновленным lastVisibleIndex.
+            val totalItems = listGridState.layoutInfo.totalItemsCount
+            if (lastVisibleIndex == totalItems - 1 && !profilePostsUiState.endReached) {
+
+                Log.d("ProfileScreen", "Автоматически подгружаем больше постов для GRID")
+                //проверяем является ли элемент последним видимым - да - колл LoadMorePostsAction
+                onUiAction(ProfileUiAction.LoadMorePostsAction)
+            }
+        }
+    }
+
+
 }
 
-
+//отображение постов
+enum class DisplayType { LIST, GRID }
 
 
 
@@ -189,7 +347,11 @@ fun ProfileHeaderSection(
 
     onButtonClick: () -> Unit, // click on "Follow or Edit"
     onFollowersClick: () -> Unit,
-    onFollowingClick: () -> Unit
+    onFollowingClick: () -> Unit,
+
+    // другие параметры
+    displayType: DisplayType,
+    onDisplayTypeChange: (DisplayType) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -199,11 +361,36 @@ fun ProfileHeaderSection(
             .padding(all = LargeSpacing) // тут будет сумма padding
     ) {
 
-        CircleImage(
-            modifier = modifier.size(90.dp),
-            url = imageUrl?.toCurrentUrl(),
-            onClick = {}
-        ) 
+
+        Row(
+            modifier = modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircleImage(
+                modifier = modifier.size(90.dp),
+                url = imageUrl?.toCurrentUrl(),
+                onClick = {}
+            )
+
+            Spacer(modifier = Modifier.weight(1f)) // Разделитель
+
+            //кнопка для переключения карточек
+            IconButton(
+                onClick = {
+                    onDisplayTypeChange(
+                        if (displayType == DisplayType.LIST) DisplayType.GRID else DisplayType.LIST
+                    )
+                }
+            ) {
+                Icon(
+                    painter = painterResource(id = if (displayType == DisplayType.LIST)  R.drawable.grid_posts_icon else R.drawable.list_posts_icon),
+                    contentDescription = "Switch Display Type"
+                )
+            }
+
+        }
+
         
         Spacer(modifier = modifier.height(SmallSpacing))
         
@@ -224,11 +411,11 @@ fun ProfileHeaderSection(
         Row(
             modifier = modifier
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
-                modifier = modifier.weight(1f) // take remaining space after the follow button
-                
+                modifier = modifier.weight(1f), // take remaining space after the follow button
+                //horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
                 FollowsText(
@@ -244,6 +431,7 @@ fun ProfileHeaderSection(
                     text = R.string.following_text,
                     onClick = onFollowingClick
                 )
+
             }
 
             FollowButton(
@@ -303,6 +491,30 @@ fun FollowsText(
 }
 
 
+@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ProfileScreenPreview() {
+    SocialAppTheme {
+        Surface(color = MaterialTheme.colorScheme.surface) {
+            ProfileScreen(
+                userInfoUiState = UserInfoUiState(
+                    isLoading = false,
+                    profile = sampleProfiles.map { it.toDomainProfiel() }.first()
+                ),
+                profilePostsUiState = ProfilePostsUiState(
+                    posts = samplePosts.map { it.toDomainPost() }
+                ),
+                profileId = 123,
+                onUiAction = {},
+                onFollowButtonClick = { /*TODO*/ },
+                onFollowersScreenNavigation = { /*TODO*/ },
+                onFollowingScreenNavigation = { /*TODO*/ },
+                onPostDetailNavigation = {}
+            )
+        }
+    }
+}
 
 
 
@@ -335,9 +547,10 @@ fun ProfileHeaderSectionPreview() {
                 followingCount = 3,
                 onButtonClick = { /*TODO*/ },
                 onFollowersClick = { /*TODO*/ },
-                ) {
-                
-            }
+                onFollowingClick = {},
+                displayType = DisplayType.LIST,
+                onDisplayTypeChange = {}
+                )
         }
     }
     
