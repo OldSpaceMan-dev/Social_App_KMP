@@ -10,4 +10,7 @@ interface ProfileRepository {
 
     suspend fun updateProfile(profile: Profile, imageBytes: ByteArray?): Result<Profile>
 
+    // Новый метод для получения профиля с количеством постов
+    //fun getProfileWithPostCount(profileId: Long): Flow<Result<Profile>>
+
 }

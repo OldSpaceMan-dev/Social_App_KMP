@@ -31,6 +31,7 @@ import com.example.socialapp.post.domain.usecase.GetPostsUseCase
 import com.example.socialapp.post.domain.usecase.GetUserPostsUseCase
 import com.example.socialapp.post.domain.usecase.LikeOrUnlikePostUseCase
 import com.example.socialapp.post.domain.usecase.RemovePostCommentUseCase
+import com.example.socialapp.post.domain.usecase.RemovePostUseCase
 import org.koin.dsl.module
 
 private val authModule = module {
@@ -54,6 +55,7 @@ private val postModule = module {
     factory { GetUserPostsUseCase() }
     factory { GetPostUseCase() }
     factory { CreatePostUseCase() }
+    factory { RemovePostUseCase() }
 
     single<PostRepository> { PostRepositoryImpl(get(), get(), get()) }
 }

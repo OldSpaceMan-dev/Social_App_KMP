@@ -15,4 +15,6 @@ interface PostRepository {
 
     suspend fun createPost(caption: String, imageBytes: ByteArray): Result<Post>
 
+    suspend fun removePost(postId: Long): Result<Post?>
+
 }

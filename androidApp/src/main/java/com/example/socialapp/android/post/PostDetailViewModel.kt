@@ -20,6 +20,7 @@ import com.example.socialapp.post.domain.usecase.GetPostCommentsUseCase
 import com.example.socialapp.post.domain.usecase.GetPostUseCase
 import com.example.socialapp.post.domain.usecase.LikeOrUnlikePostUseCase
 import com.example.socialapp.post.domain.usecase.RemovePostCommentUseCase
+import com.example.socialapp.post.domain.usecase.RemovePostUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -30,7 +31,8 @@ class PostDetailViewModel(
     private val getPostCommentsUseCase: GetPostCommentsUseCase,
     private val likeOrUnlikePostUseCase: LikeOrUnlikePostUseCase,
     private val addPostCommentUseCase: AddPostCommentUseCase,
-    private val removePostCommentUseCase: RemovePostCommentUseCase
+    private val removePostCommentUseCase: RemovePostCommentUseCase,
+    private val removePostUseCase: RemovePostUseCase
 ): ViewModel(){
 
     var postUiState by mutableStateOf(PostUiState())
@@ -50,6 +52,7 @@ class PostDetailViewModel(
                     is Event.PostUpdated -> updatePost(it.post)
                     is Event.ProfileUpdated -> updateCurrentUserProfileData(it.profile)
                     is Event.PostCreated -> Unit
+                    is Event.PostDeleted -> Unit
                 }
             }
             .launchIn(viewModelScope)
@@ -320,6 +323,40 @@ class PostDetailViewModel(
         }
     }
 
+
+
+    private fun removePost(post: Post) {
+
+        viewModelScope.launch {
+
+            //val post = postUiState.post
+
+            val result = removePostUseCase(
+                postId = post.postId
+            )
+
+            postUiState = when (result) {
+                is Result.Error -> {
+                    postUiState.copy(
+                        errorMessage = result.message,
+                        //post =
+                    )
+                }
+
+                is Result.Success -> {
+                    EventBus.send(Event.PostDeleted(post))
+                    postUiState.copy(
+                        isLoading = false,
+                        postDeleted = true
+                    )
+                }
+            }
+        }
+
+    }
+
+
+
     fun onUiAction(uiAction: PostDetailUiAction) {
         when (uiAction) {
             is PostDetailUiAction.FetchPostAction -> fetchData(uiAction.postId)
@@ -331,6 +368,8 @@ class PostDetailViewModel(
             is PostDetailUiAction.AddCommentAction -> addNewComment(uiAction.comment)
 
             is PostDetailUiAction.RemoveCommentAction -> removeComment(uiAction.postComment)
+
+            is PostDetailUiAction.RemovePostAction -> removePost(uiAction.post)
         }
     }
 
@@ -341,7 +380,8 @@ class PostDetailViewModel(
 data class PostUiState(
     val isLoading: Boolean = true,
     val post: Post? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val postDeleted: Boolean = false
 )
 
 data class CommentsUiState(
@@ -365,6 +405,8 @@ sealed interface PostDetailUiAction{
     data class AddCommentAction(val comment: String): PostDetailUiAction
 
     data class RemoveCommentAction(val postComment: PostComment): PostDetailUiAction
+
+    data class RemovePostAction(val post: Post): PostDetailUiAction
 
 }
 

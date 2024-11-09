@@ -12,8 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,8 +20,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.windowInsetsPadding
+
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -76,12 +74,13 @@ import com.example.socialapp.android.common.components.loadingMoreItem
 
 import com.example.socialapp.android.common.fake_data.sampleComments
 import com.example.socialapp.android.common.fake_data.samplePosts
-import com.example.socialapp.android.common.theme.ExtraLargeSpacing
+
 import com.example.socialapp.android.common.theme.MediumSpacing
 import com.example.socialapp.android.common.theme.SmallSpacing
 import com.example.socialapp.android.common.theme.SocialAppTheme
-import com.example.socialapp.android.common.util.Constants
+
 import com.example.socialapp.android.common.util.toCurrentUrl
+import com.example.socialapp.common.domain.model.Post
 import com.example.socialapp.post.domain.model.PostComment
 import kotlinx.coroutines.launch
 
@@ -96,7 +95,9 @@ fun PostDetailScreen(
     postId: Long,
     onProfileNavigation: (userId: Long) -> Unit,
 
-    onUiAction: (PostDetailUiAction) -> Unit
+    onUiAction: (PostDetailUiAction) -> Unit,
+
+    onPostDeleted: () -> Unit
 ) {
 
     //paginashion - show last post and reload new post
@@ -130,13 +131,14 @@ fun PostDetailScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
 
-    //для ботом шита
 
+
+
+
+    //TODO для ботом шита - comments
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false // Отключаем промежуточное состояние, если нужно
     )
-
-
 
     val scope = rememberCoroutineScope()
     var selectedComment by rememberSaveable(stateSaver = postCommentSaver) {
@@ -157,52 +159,22 @@ fun PostDetailScreen(
 
 
 
-    /*
-    if (isBottomSheetVisible) {
-    ModalBottomSheet(
-            sheetState = sheetState,
-            onDismissRequest = {
-                scope.launch {
-                    sheetState.hide() // Закрываем лист
-                    isBottomSheetVisible = false // Устанавливаем флаг в false, когда лист закрывается
-                    //selectedComment = null // Сбрасываем выбранный комментарий при закрытии
-                }
-            },
-            content = {
-                selectedComment?.let { postComment ->
-                    CommentMoreActionsBottomSheetContent(
-                        comment = postComment,
-                        canDeleteComment = postComment.userId == postUiState.post?.userId,
-                        onDeleteCommentClick = { comment ->
-                            scope.launch {
-                                sheetState.hide()
-                                isBottomSheetVisible = false
-                            }.invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    onUiAction(PostDetailUiAction.RemoveCommentAction(comment))
-                                    selectedComment = null // сброс выбранного коммента
-                                }
-                            }
-                        },
-                        onNavigateToProfile = { userId ->
-                            scope.launch {
-                                sheetState.hide()
-                                isBottomSheetVisible = false
-                            }.invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    selectedComment = null
-                                    onProfileNavigation(userId)
-                                }
-                            }
-                        }
-                    )
-                }
 
-            },
-            modifier = Modifier.navigationBarsPadding()
-        )
-        }
-     */
+
+    //TODO для ботом шита
+    val sheetPostState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false // Отключаем промежуточное состояние, если нужно
+    )
+
+    // отображение бом щита
+    var isPostBottomSheetVisible by remember { mutableStateOf(false) }
+
+    //val scopePost = rememberCoroutineScope()
+    var selectedPost by rememberSaveable(stateSaver = postActionSaver) {
+        mutableStateOf(null)
+    }
+
+
 
 
 
@@ -253,6 +225,45 @@ fun PostDetailScreen(
         }
     }
 
+    //TODO для POST
+    if (isPostBottomSheetVisible) {
+        ModalBottomSheet(
+            sheetState = sheetPostState,
+            onDismissRequest = {
+                scope.launch {
+                    sheetPostState.hide()
+                    isPostBottomSheetVisible = false
+                }
+            },
+            modifier = modifier.navigationBarsPadding(),
+            dragHandle = null
+        ) {
+            selectedPost?.let {post ->
+                PostMoreActionsBottomSheetContent(
+                    post = post,
+                    canDeletePost =  post.isOwnPost,//post.postId == postId || post.isOwnPost,
+                    onDeletePostClick = {
+                        onUiAction(PostDetailUiAction.RemovePostAction(post))
+
+                    },
+                    onNavigateToProfile = { userId ->
+                        scope.launch {
+                            sheetPostState.hide()
+                            isPostBottomSheetVisible = false
+                        }.invokeOnCompletion {
+                            if (!sheetPostState.isVisible) {
+                                selectedPost = null
+                                onProfileNavigation(userId)
+                            }
+                        }
+                        
+                    }
+                )
+            }
+
+        }
+    }
+
 
 
 
@@ -286,7 +297,13 @@ fun PostDetailScreen(
                         onLikeClick = { onUiAction(PostDetailUiAction.LikeOrDislikePostAction(it)) },
                         onCommentClick = { /*TODO*/ },
                         isDetailScreen = true,//show all description,
-                        onPostDotsClick = { /*TODO*/ }
+                        onPostMoreIconClick = {
+                            selectedPost = it
+                            isPostBottomSheetVisible = true
+                            scope.launch {
+                                sheetPostState.show()
+                            }
+                        }
                     )
                 }
 
@@ -354,6 +371,10 @@ fun PostDetailScreen(
         ScreenLevelLoadingErrorView {
             onUiAction(PostDetailUiAction.FetchPostAction(postId))
         }
+    }
+
+    if (postUiState.postDeleted) {
+        onPostDeleted()
     }
 
     //fetch data
@@ -507,11 +528,12 @@ private fun CommentMoreActionsBottomSheetContent (
 
         ListItem(
 
-            modifier = modifier.clickable(
-                enabled = canDeleteComment, //true - достно удаление
-                onClick = {
-                    onDeleteCommentClick(comment)
-                })
+            modifier = modifier
+                .clickable(
+                    enabled = canDeleteComment, //true - достно удаление
+                    onClick = {
+                        onDeleteCommentClick(comment)
+                    })
                 .graphicsLayer {
                     // Устанавливаем прозрачность 90%, если удаление недоступно
                     alpha = if (canDeleteComment) 1f else 0.4f
@@ -537,9 +559,6 @@ private fun CommentMoreActionsBottomSheetContent (
 
     }
 }
-
-
-
 
 
 
@@ -587,6 +606,94 @@ private fun SendCommentButton(
 
 
 
+
+
+
+@Composable
+private fun PostMoreActionsBottomSheetContent(
+    modifier: Modifier = Modifier,
+    post: Post,
+    canDeletePost: Boolean, //только юзер или own может удалить пост
+    onDeletePostClick: (post: Post) -> Unit,
+    onNavigateToProfile: (userId: Long) -> Unit
+) {
+    Column {
+        Text(
+            text = stringResource(id = R.string.post_more_actions_title),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = modifier.padding(all = LargeSpacing)
+        )
+
+        Divider()
+
+        ListItem(
+            modifier = modifier.clickable {
+                onNavigateToProfile(post.userId)
+            },
+            headlineContent = {
+                Text(
+                    text = stringResource(id = R.string.view_profile_action, post.userName),
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis // многоточие
+                )
+            },
+
+            leadingContent = {
+                CircleImage(
+                    url = post.userImageUrl?.toCurrentUrl(),
+                    modifier = modifier
+                        .size(25.dp),
+                    onClick = {}
+                )
+            }
+        )
+
+        ListItem(
+
+            modifier = modifier
+                .clickable(
+                    enabled = canDeletePost, //true - достно удаление
+                    onClick = {
+                        onDeletePostClick(post)
+                    })
+                .graphicsLayer {
+                    // Устанавливаем прозрачность 90%, если удаление недоступно
+                    alpha = if (canDeletePost) 1f else 0.4f
+                }
+            ,
+            headlineContent = {
+                Text(
+                    text = stringResource(id = R.string.delete_post_action),
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis // многоточие
+                )
+            },
+
+            leadingContent = {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null
+                )
+            }
+        )
+        Spacer(modifier = Modifier.height(40.dp))
+
+
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
 //можем сохранять данные избегая изменения в конфигурации
 //можно реализовать и через вьюмодел
 private val postCommentSaver = Saver<PostComment?, Any>(
@@ -615,6 +722,50 @@ private val postCommentSaver = Saver<PostComment?, Any>(
             userName = map["userName"] as String,
             userImageUrl = map["userImageUrl"] as String?,
             createdAt = map["createdAt"] as String
+        )
+    }
+)
+
+
+
+
+
+
+//можем сохранять данные избегая изменения в конфигурации
+//можно реализовать и через вьюмодел
+private val postActionSaver = Saver<Post?, Any>(
+    save = { post ->
+        if (post != null) {
+            mapOf(
+
+                "postId" to post.postId,
+                "caption" to post.caption,
+                "imageUrl" to post.imageUrl,
+                "createdAt" to post.createdAt,
+                "likesCount" to post.likesCount,
+                "commentsCount" to post.commentsCount,
+                "userId" to post.userId,
+                "userName" to post.userName,
+                "userImageUrl" to post.userImageUrl,
+                "isLiked" to post.isLiked
+            )
+        } else {
+            null
+        }
+    },
+    restore = { savedValue ->
+        val map = savedValue as Map<*, *>
+        Post(
+            postId = map["postId"] as Long,
+            caption = map["caption"] as String,
+            imageUrl = map["imageUrl"] as String,
+            createdAt = map["createdAt"] as String,
+            likesCount = map["likesCount"] as Int,
+            commentsCount = map["commentsCount"] as Int,
+            userId = map["userId"] as Long,
+            userName = map["userName"] as String,
+            userImageUrl = map["userImageUrl"] as String?,
+            isLiked = map["isLiked"] as Boolean, //TODO сделать по дефолту - надо смотреть
         )
     }
 )
@@ -655,6 +806,22 @@ private fun CommentMoreActionsBottomSheetContentPreview() {
 }
 
 
+@Preview
+@Composable
+private fun PostMoreActionsBottomSheetContentPreview() {
+    SocialAppTheme {
+        Surface(color = MaterialTheme.colorScheme.surface) {
+            PostMoreActionsBottomSheetContent(
+                post = samplePosts.first().toDomainPost(),
+                canDeletePost = false,
+                onDeletePostClick = {},
+                onNavigateToProfile = {}
+            )
+        }
+    }
+}
+
+
 
 @Preview
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -675,7 +842,8 @@ fun PostDetailScreenPreview() {
                 ),
                 postId = 1,
                 onProfileNavigation = {},
-                onUiAction = {}
+                onUiAction = {},
+                onPostDeleted = {}
             )
         }
     }

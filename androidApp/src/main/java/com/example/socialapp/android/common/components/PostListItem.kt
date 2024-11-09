@@ -11,22 +11,40 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.socialapp.android.R
-import com.example.socialapp.android.common.fake_data.SamplePost
 import com.example.socialapp.android.common.fake_data.samplePosts
 import com.example.socialapp.android.common.theme.ExtraLargeSpacing
 import com.example.socialapp.android.common.theme.LargeSpacing
@@ -42,7 +59,9 @@ import com.example.socialapp.android.common.theme.MediumSpacing
 import com.example.socialapp.android.common.theme.SocialAppTheme
 import com.example.socialapp.android.common.util.toCurrentUrl
 import com.example.socialapp.common.domain.model.Post
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostListItem(
     modifier: Modifier = Modifier,
@@ -53,8 +72,14 @@ fun PostListItem(
     onCommentClick: (Post) -> Unit,
     isDetailScreen: Boolean = false,
 
-    onPostDotsClick: (postId: Long) -> Unit
+    onPostMoreIconClick: (Post) -> Unit,
 ) {
+
+
+
+
+
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -80,9 +105,7 @@ fun PostListItem(
             onProfileClick = {
                 onProfileClick(post.userId)
             },
-            onPostDotsClick = {
-                onPostDotsClick(post.postId)
-            }
+            onPostMoreIconClick = {onPostMoreIconClick(post)}
         )
 
         AsyncImage(
@@ -133,7 +156,7 @@ fun PostHeader(
     profileUrl: String?,
     date: String,
     onProfileClick: () -> Unit,
-    onPostDotsClick: () -> Unit
+    onPostMoreIconClick: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -191,7 +214,7 @@ fun PostHeader(
             painter = painterResource(id = R.drawable.round_more_horizontal),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant, //оттенок, который будет применен к painter. Если указан цвет.
-            modifier = modifier.clickable(onClick = onPostDotsClick)
+            modifier = modifier.clickable { onPostMoreIconClick()}
         )
 
     }
@@ -266,6 +289,56 @@ fun PostLikesRow(
 
 
 
+
+
+
+
+//можем сохранять данные избегая изменения в конфигурации
+//можно реализовать и через вьюмодел
+private val postActionSaver = Saver<Post?, Any>(
+    save = { post ->
+        if (post != null) {
+            mapOf(
+
+                "postId" to post.postId,
+                "caption" to post.caption,
+                "imageUrl" to post.imageUrl,
+                "createdAt" to post.createdAt,
+                "likesCount" to post.likesCount,
+                "commentsCount" to post.commentsCount,
+                "userId" to post.userId,
+                "userName" to post.userName,
+                "userImageUrl" to post.userImageUrl,
+                "isLiked" to post.isLiked
+            )
+        } else {
+            null
+        }
+    },
+    restore = { savedValue ->
+        val map = savedValue as Map<*, *>
+        Post(
+            postId = map["postId"] as Long,
+            caption = map["caption"] as String,
+            imageUrl = map["imageUrl"] as String,
+            createdAt = map["createdAt"] as String,
+            likesCount = map["likesCount"] as Int,
+            commentsCount = map["commentsCount"] as Int,
+            userId = map["userId"] as Long,
+            userName = map["userName"] as String,
+            userImageUrl = map["userImageUrl"] as String?,
+            isLiked = map["isLiked"] as Boolean, //TODO сделать по дефолту - надо смотреть
+        )
+    }
+)
+
+
+
+
+
+
+
+
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Preview
 @Composable
@@ -278,11 +351,13 @@ private fun PostListItemPreview() {
                 onProfileClick = {},
                 onCommentClick = {},
                 onLikeClick = {},
-                onPostDotsClick = {}
+                onPostMoreIconClick = {}
             )
         }
     }
 }
+
+
 
 
 
@@ -299,7 +374,7 @@ private fun PostHeaderPreview() {
                 profileUrl = "",
                 date = "20 min",
                 onProfileClick = {},
-                onPostDotsClick = {}
+                onPostMoreIconClick = {}
             )
         }
     }

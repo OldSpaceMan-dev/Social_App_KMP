@@ -4,6 +4,7 @@ import com.example.socialapp.common.data.model.LikeApiResponse
 import com.example.socialapp.common.data.model.LikeParams
 import com.example.socialapp.common.data.model.PostApiResponse
 import com.example.socialapp.common.data.model.PostsApiResponse
+import com.example.socialapp.common.data.model.RemotePostParams
 import com.example.socialapp.common.util.Constants
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -123,6 +124,17 @@ internal class PostApiService : KtorApi() {
     }
 
 
+    suspend fun removePost(
+        postParams: RemotePostParams,
+        userToken: String
+    ): PostApiResponse {
+        val httpResponse = client.delete {
+            endPoint(path = "/post/delete")
+            setBody(body = postParams)
+            setToken(token = userToken)
+        }
+        return PostApiResponse(code = httpResponse.status, data = httpResponse.body())
+    }
 
 }
 

@@ -58,6 +58,7 @@ class ProfileViewModel(
                     is Event.PostUpdated -> updatePost(it.post)
                     is Event.ProfileUpdated -> updateProfile(it.profile)
                     is Event.PostCreated -> Unit
+                    is Event.PostDeleted -> handlePostDeleted(it.post)
                 }
             }
             .launchIn(viewModelScope)
@@ -277,7 +278,13 @@ class ProfileViewModel(
                 }
             }
         )
+    }
 
+
+    private fun handlePostDeleted(post: Post) {
+        profilePostsUiState = profilePostsUiState.copy(
+            posts = profilePostsUiState.posts.filter { it.postId != post.postId }
+        )
     }
 
 

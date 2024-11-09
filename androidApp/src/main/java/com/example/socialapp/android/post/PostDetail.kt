@@ -23,7 +23,8 @@ fun PostDetail(
         //onAddCommentClick = { /*TODO*/ },
         postId = postId,
         onProfileNavigation = { navigator.navigate(ProfileDestination(it))},
-        onUiAction = viewModel::onUiAction
+        onUiAction = viewModel::onUiAction,
+        onPostDeleted = {navigator.popBackStack()}
     )
 
 }
