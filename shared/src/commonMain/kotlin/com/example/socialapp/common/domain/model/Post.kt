@@ -16,5 +16,5 @@ data class Post(
     val userImageUrl: String?,
 
     val isLiked: Boolean, //current user has like or not
-    val isOwnPost: Boolean // current post belong to current user
+    val isOwnPost: Boolean = false// current post belong to current user
 )

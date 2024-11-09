@@ -16,7 +16,9 @@ internal data class RemoteProfile(
     val followingCount: Int,
 
     val isFollowing: Boolean,
-    val isOwnProfile: Boolean
+    val isOwnProfile: Boolean,
+
+    //var postCount: Int = 0
 ) {
     fun toProfile() : Profile { //convert RemoteProfile -> Profile
         return Profile(
@@ -27,7 +29,8 @@ internal data class RemoteProfile(
             followersCount,
             followingCount,
             isFollowing,
-            isOwnProfile
+            isOwnProfile,
+            //postCount = postCount
         )
     }
 

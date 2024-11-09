@@ -14,7 +14,8 @@ fun UserSettings.toDomainProfile() : Profile {
         followersCount = followersCount,
         followingCount = followingCount,
         isFollowing = false,
-        isOwnProfile = true
+        isOwnProfile = true,
+        //postCount = 0
     )
 }
 

@@ -3,6 +3,11 @@ package com.example.socialapp.android.account.profile
 import android.content.res.Configuration
 import android.util.Log
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Animation
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -35,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -49,6 +55,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -126,11 +133,15 @@ fun ProfileScreen(
     }
 
 
+    //val headerVisisble = remember { mutableStateOf(true) }
+
+    val displayType = remember { mutableStateOf(DisplayType.LIST) }
+
+    //val headerVisibilityAnimation = remember { Animatable(1f) }
 
 
-    val displayType = remember {
-        mutableStateOf(DisplayType.LIST)
-    }
+
+
 
 
     //circle indicator
@@ -142,6 +153,228 @@ fun ProfileScreen(
             CircularProgressIndicator()
         }
     }else{
+        Column {
+
+            if (displayType.value == DisplayType.LIST) {
+
+                LazyColumn(
+                    modifier = modifier.fillMaxSize(),
+                    state = listState
+                ){
+
+                    item(key = "header_section"){
+                        ProfileHeaderSection(
+                            imageUrl = userInfoUiState.profile?.imageUrl ?: "",
+                            name = userInfoUiState.profile?.name ?: "",
+                            bio = userInfoUiState.profile?.bio ?: "",
+                            followersCount = userInfoUiState.profile?.followersCount ?: 0,
+                            followingCount = userInfoUiState.profile?.followingCount ?: 0,
+                            postCount = 1,
+
+                            isFollowing = userInfoUiState.profile?.isFollowing ?: false,
+                            isCurrentUser = userInfoUiState.profile?.isOwnProfile ?:false,
+
+                            onButtonClick = onFollowButtonClick,
+                            onFollowersClick = onFollowersScreenNavigation,
+                            onFollowingClick = onFollowingScreenNavigation,
+
+                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            IconButton(
+                                onClick = { displayType.value = DisplayType.LIST }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.list_posts_icon),
+                                    contentDescription = null
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    displayType.value = DisplayType.GRID
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id =  R.drawable.grid_posts_icon),
+                                    contentDescription = null
+                                )
+                            }
+
+                        }
+                    }
+
+                    items(
+                        items = profilePostsUiState.posts,
+                        key = {post -> post.postId}
+                    ){
+                        PostListItem(
+                            post = it,
+                            onPostClick = {},
+                            onProfileClick = {},
+                            onLikeClick = {post ->
+                                onUiAction(ProfileUiAction.PostLikeAction(post))
+                            },
+                            onCommentClick = {},
+                            onPostMoreIconClick = {}
+                        )
+                    }
+
+                    //loading spinner
+                    if (profilePostsUiState.isLoading){
+                        item(key = Constants.LOADING_MORE_ITEM_KEY) {
+                            Box(
+                                modifier = modifier
+                                    .fillMaxSize()
+                                    .padding(
+                                        vertical = MediumSpacing,
+                                        horizontal = LargeSpacing
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ){
+                                CircularProgressIndicator()
+                            }
+                        }
+                    }
+
+                }
+
+            } else {
+
+                LazyColumn(
+                    modifier = modifier.fillMaxSize(),
+                    state = listState
+                ) {
+
+                    item(key = "header_section"){
+                        ProfileHeaderSection(
+                            imageUrl = userInfoUiState.profile?.imageUrl ?: "",
+                            name = userInfoUiState.profile?.name ?: "",
+                            bio = userInfoUiState.profile?.bio ?: "",
+                            followersCount = userInfoUiState.profile?.followersCount ?: 0,
+                            followingCount = userInfoUiState.profile?.followingCount ?: 0,
+                            postCount = 1,
+
+                            isFollowing = userInfoUiState.profile?.isFollowing ?: false,
+                            isCurrentUser = userInfoUiState.profile?.isOwnProfile ?:false,
+
+                            onButtonClick = onFollowButtonClick,
+                            onFollowersClick = onFollowersScreenNavigation,
+                            onFollowingClick = onFollowingScreenNavigation,
+
+                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            IconButton(
+                                onClick = { displayType.value = DisplayType.LIST }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.list_posts_icon),
+                                    contentDescription = null
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    displayType.value = DisplayType.GRID
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id =  R.drawable.grid_posts_icon),
+                                    contentDescription = null
+                                )
+                            }
+
+                        }
+                    }
+
+                    // Встраивание LazyVerticalGrid внутри Box для ограничения его высоты
+                    item {
+                        Box(
+                            modifier = modifier
+                                .fillMaxWidth()
+                                .height(600.dp) // задайте необходимую высоту
+                        ) {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(3),
+                                modifier = Modifier.fillMaxSize(),
+                                state = listGridState
+                            ) {
+                                items(profilePostsUiState.posts) { post ->
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(0.5.dp) // Отступы между изображениями
+                                            .fillMaxWidth()
+                                            .aspectRatio(1.0f)
+                                            .clickable { onPostDetailNavigation(post) }
+                                        //.border(0.2.dp, Color.Gray) // Рамка вокруг изображения
+                                    ) {
+                                        AsyncImage(
+                                            model = post.imageUrl.toCurrentUrl(),
+                                            contentDescription = null,
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentScale = ContentScale.Crop,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Элемент загрузки
+                    if (profilePostsUiState.isLoading) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(
+                                        vertical = MediumSpacing,
+                                        horizontal = LargeSpacing
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+/*
+
+        // Блок переключения отображения постов
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            // Кнопка для отображения в виде списка
+            TextButton(
+                onClick = { displayType.value = DisplayType.LIST },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.comment_hint),
+                    color = if (displayType.value == DisplayType.LIST) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            // Кнопка для отображения в виде сетки
+            TextButton(
+                onClick = { displayType.value = DisplayType.GRID },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.comment_hint),
+                    color = if (displayType.value == DisplayType.GRID) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
 
 
         if (displayType.value == DisplayType.LIST) {
@@ -182,7 +415,7 @@ fun ProfileScreen(
                             onUiAction(ProfileUiAction.PostLikeAction(post))
                         },
                         onCommentClick = {},
-                        onPostDotsClick = {}
+                        onPostMoreIconClick = {}
                     )
                 }
 
@@ -292,6 +525,9 @@ fun ProfileScreen(
 
     }
 
+
+*/
+
     //we need fetchData call back
     LaunchedEffect(key1 = Unit){
         onUiAction(ProfileUiAction.FetchProfileAction(profileId = profileId))
@@ -339,8 +575,10 @@ fun ProfileHeaderSection(
     imageUrl: String?,
     name: String,
     bio: String,
+
     followersCount: Int,
     followingCount: Int,
+    postCount: Int, //TODO нужно добавить колличество -постов
 
     isCurrentUser: Boolean = false,
     isFollowing: Boolean = false, // if not the currUser
@@ -349,23 +587,25 @@ fun ProfileHeaderSection(
     onFollowersClick: () -> Unit,
     onFollowingClick: () -> Unit,
 
-    // другие параметры
-    displayType: DisplayType,
-    onDisplayTypeChange: (DisplayType) -> Unit
+
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = MediumSpacing)
             .background(color = MaterialTheme.colorScheme.surface)
-            .padding(all = LargeSpacing) // тут будет сумма padding
+            .padding(
+                top= LargeSpacing,
+                start = LargeSpacing,
+                end = LargeSpacing) // тут будет сумма padding
     ) {
 
 
         Row(
             modifier = modifier
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             CircleImage(
                 modifier = modifier.size(90.dp),
@@ -373,66 +613,60 @@ fun ProfileHeaderSection(
                 onClick = {}
             )
 
-            Spacer(modifier = Modifier.weight(1f)) // Разделитель
-
-            //кнопка для переключения карточек
-            IconButton(
-                onClick = {
-                    onDisplayTypeChange(
-                        if (displayType == DisplayType.LIST) DisplayType.GRID else DisplayType.LIST
-                    )
-                }
-            ) {
-                Icon(
-                    painter = painterResource(id = if (displayType == DisplayType.LIST)  R.drawable.grid_posts_icon else R.drawable.list_posts_icon),
-                    contentDescription = "Switch Display Type"
+            Row (
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ){
+                FollowsText(
+                    count = postCount,
+                    text = R.string.posts_count,
+                    onClick = {}
                 )
-            }
-
-        }
-
-        
-        Spacer(modifier = modifier.height(SmallSpacing))
-        
-        Text(
-            text = name,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis 
-        )
-        
-        Text(
-            text = bio,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Spacer(modifier = modifier.height(MediumSpacing))
-
-        Row(
-            modifier = modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Row(
-                modifier = modifier.weight(1f), // take remaining space after the follow button
-                //horizontalArrangement = Arrangement.SpaceBetween
-            ) {
 
                 FollowsText(
                     count = followersCount,
                     text = R.string.followers_text,
                     onClick = onFollowersClick
                 )
-                
-                Spacer(modifier = modifier.width(MediumSpacing))
 
                 FollowsText(
                     count = followingCount,
                     text = R.string.following_text,
                     onClick = onFollowingClick
                 )
-
             }
+        }
+
+        
+        Spacer(modifier = modifier.height(SmallSpacing))
+
+
+
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = bio,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
 
             FollowButton(
                 text = when {//R.string.follow_text_label, // change later - for outline button
@@ -447,13 +681,48 @@ fun ProfileHeaderSection(
                 // if isCurrentUser = Edit
                 isOutlined = isCurrentUser || isFollowing
             )
-
         }
-        
     }
 }
 
 
+
+@Composable
+fun FollowsText(
+    modifier: Modifier = Modifier,
+    count: Int,
+    @StringRes text: Int,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .clickable { onClick() }
+            .padding(horizontal = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "$count",
+            style = TextStyle(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+            )
+        )
+
+        Text(
+            text = stringResource(id = text),
+            style = TextStyle(
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.54f),
+                fontWeight = FontWeight.Normal,
+                fontSize = 14.sp
+            )
+        )
+    }
+}
+
+
+
+/*
 @Composable
 fun FollowsText(
     modifier: Modifier = Modifier,
@@ -489,6 +758,7 @@ fun FollowsText(
         modifier = modifier.clickable { onClick() }
     )
 }
+ */
 
 
 @Preview
@@ -545,11 +815,10 @@ fun ProfileHeaderSectionPreview() {
                 bio = "Hey there, welcome to Arkadiy page",
                 followersCount = 100,
                 followingCount = 3,
+                postCount = 1,
                 onButtonClick = { /*TODO*/ },
                 onFollowersClick = { /*TODO*/ },
                 onFollowingClick = {},
-                displayType = DisplayType.LIST,
-                onDisplayTypeChange = {}
                 )
         }
     }

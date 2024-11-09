@@ -53,6 +53,7 @@ class HomeScreenViewModel(
                     is Event.PostUpdated -> updatePost(it.post)
                     is Event.ProfileUpdated -> updateCurrentUserPostsProfileData(it.profile)
                     is Event.PostCreated -> insertNewPost(it.post)
+                    is Event.PostDeleted -> handlePostDeleted(it.post)
                 }
             }.launchIn(viewModelScope)
     }
@@ -264,6 +265,13 @@ class HomeScreenViewModel(
         )
     }
 
+    private fun handlePostDeleted(post: Post) {
+
+        postsFeedUiState = postsFeedUiState.copy(
+            // filter создает новый список, исключая пост с postId, совпадающим с post.postId.
+            posts = postsFeedUiState.posts.filter { it.postId != post.postId }
+        )
+    }
 
 
 

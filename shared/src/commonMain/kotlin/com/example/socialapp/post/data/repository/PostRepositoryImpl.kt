@@ -5,6 +5,7 @@ import com.example.socialapp.common.data.local.UserSettings
 import com.example.socialapp.common.data.model.LikeParams
 import com.example.socialapp.common.data.model.NewPostParams
 import com.example.socialapp.common.data.model.PostsApiResponse
+import com.example.socialapp.common.data.model.RemotePostParams
 import com.example.socialapp.common.data.remote.PostApiService
 import com.example.socialapp.common.domain.model.Post
 import com.example.socialapp.common.util.Constants
@@ -23,6 +24,8 @@ internal class PostRepositoryImpl(
     private val userPreferences: UserPreferences,
     private val dispatcher: DispatcherProvider
 ) : PostRepository {
+
+
     override suspend fun getFeedPosts(page: Int, pageSize: Int): Result<List<Post>> {
         return fetchPosts(
             apiCall = {currentUserData ->
@@ -125,7 +128,9 @@ internal class PostRepositoryImpl(
                 )
 
                 if (apiResponse.code == HttpStatusCode.OK) {
-                    Result.Success(data = apiResponse.data.post!!.toDomainPost())
+                    Result.Success(
+                        data = apiResponse.data.post!!.toDomainPost( isOwnPost = apiResponse.data.post.userId == userData.id)
+                    )
                 } else {
                     Result.Error(message = apiResponse.data.message!!)
                 }
@@ -168,7 +173,7 @@ internal class PostRepositoryImpl(
                     // теперь мы будет сразу без дополнительного запроса преобразовавыть данные для отправляемого поста
                     //+ изменим логику на беке - вернем данные поста вместе со статусом
                     //!!.toDomainPost() - разворачиваем данные в читаемый формат Android системой
-                    data = apiResponse.data.post!!.toDomainPost()
+                    data = apiResponse.data.post!!.toDomainPost( isOwnPost = apiResponse.data.post.userId == currentUserData.id)
                 )
             } else {
                 Result.Error(message = apiResponse.data.message ?: Constants.UNEXPECTED_ERROR)
@@ -176,6 +181,45 @@ internal class PostRepositoryImpl(
 
         }
     }
+
+
+    override suspend fun removePost(postId: Long): Result<Post?> {
+        return withContext(dispatcher.io) {
+
+            try {
+                val currentUserData = userPreferences.getUserData()
+
+                val params = RemotePostParams(
+                    postId = postId,
+                    userId = currentUserData.id
+                )
+
+                val apiResponse = postApiService.removePost(
+                    postParams = params,
+                    userToken = currentUserData.token
+                )
+
+                if (apiResponse.code == HttpStatusCode.OK) {
+                    val post = apiResponse.data.post?.toDomainPost(
+                        isOwnPost = apiResponse.data.post.userId == currentUserData.id
+                    )
+                    Result.Success(data = post)
+                } else {
+                    Result.Error(message = apiResponse.data.message ?:Constants.UNEXPECTED_ERROR)
+                }
+
+            } catch (ioException: IOException) {
+                Result.Error(message = Constants.NO_INTERNET_ERROR)
+            } catch (exception: Throwable) {
+                Result.Error(message = "${exception.cause}")
+            }
+
+
+        }
+    }
+
+
+
 
 
 
@@ -191,7 +235,11 @@ internal class PostRepositoryImpl(
 
                 when (apiResponse.code) {
                     HttpStatusCode.OK -> {
-                        Result.Success(data = apiResponse.data.posts.map { it.toDomainPost() })
+                        Result.Success(
+                            data = apiResponse.data.posts.map {
+                                it.toDomainPost( isOwnPost =  it.userId == currentUserData.id)
+                            }
+                        )
                     }
                     else -> {
                         Result.Error(message = Constants.UNEXPECTED_ERROR)

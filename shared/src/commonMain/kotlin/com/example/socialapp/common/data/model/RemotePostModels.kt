@@ -23,7 +23,7 @@ internal data class RemotePost(
     val isLiked: Boolean, //current user has like or not
     val isOwnPost: Boolean // current post belong to current user
 ) {
-    fun toDomainPost(): Post {
+    fun toDomainPost(isOwnPost: Boolean): Post {
         return Post(
             postId = postId,
             caption = caption,
@@ -80,6 +80,12 @@ internal data class NewPostParams(
     val userId: Long
 )
 
+
+@Serializable
+internal data class RemotePostParams(
+    val postId: Long,
+    val userId: Long
+)
 
 
 

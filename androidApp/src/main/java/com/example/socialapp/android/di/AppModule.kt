@@ -23,7 +23,7 @@ val appModule = module { //koin
     viewModel { SignUpViewModel(get()) }
     viewModel { MainActivityViewModel(get()) }
     viewModel { HomeScreenViewModel(get(), get(), get(), get()) }
-    viewModel { PostDetailViewModel(get(), get(), get(), get(), get()) }
+    viewModel { PostDetailViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get(), get()) }
     viewModel { EditProfileViewModel(get(), get(), get()) }
     viewModel { FollowsViewModel(get()) }

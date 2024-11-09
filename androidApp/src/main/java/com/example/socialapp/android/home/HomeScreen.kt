@@ -118,7 +118,7 @@ fun HomeScreen(
                     onProfileClick = { onProfileNavigation(it)},
                     onLikeClick = { onUiAction(HomeUiAction.PostLikeAction(it))},
                     onCommentClick =  { onPostDetailNavigation(it) },
-                    onPostDotsClick = {/* ToDO */ }
+                    onPostMoreIconClick = {/* ToDO */ }
                 )
             }
 
