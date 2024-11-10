@@ -9,7 +9,8 @@ data class AuthResultData(
     val avatar: String? = null,
     val token: String,
     val followersCount: Int = 0,
-    val followingCount: Int = 0
+    val followingCount: Int = 0,
+    val postCount: Int = 0
 )
 
 

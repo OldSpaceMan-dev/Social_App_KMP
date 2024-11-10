@@ -8,6 +8,6 @@ import com.example.socialapp.auth.domain.model.AuthResultData
 
 internal fun AuthResponseData.toAuthResultData(): AuthResultData{
     return AuthResultData(
-        id, name, bio, avatar, token, followersCount, followingCount
+        id, name, bio, avatar, token, followersCount, followingCount, postCount
     )
 }
