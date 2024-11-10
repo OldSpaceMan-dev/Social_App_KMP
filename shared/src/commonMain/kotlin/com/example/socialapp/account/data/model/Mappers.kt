@@ -15,7 +15,7 @@ fun UserSettings.toDomainProfile() : Profile {
         followingCount = followingCount,
         isFollowing = false,
         isOwnProfile = true,
-        //postCount = 0
+        postCount = postCount
     )
 }
 
@@ -28,6 +28,7 @@ fun Profile.toUserSettings(token: String) : UserSettings {
         avatar = imageUrl,
         followersCount = followersCount,
         followingCount = followingCount,
+        postCount = postCount,
         token = token
     )
 }

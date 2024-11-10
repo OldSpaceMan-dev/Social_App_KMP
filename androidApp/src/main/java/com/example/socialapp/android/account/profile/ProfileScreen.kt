@@ -169,7 +169,7 @@ fun ProfileScreen(
                             bio = userInfoUiState.profile?.bio ?: "",
                             followersCount = userInfoUiState.profile?.followersCount ?: 0,
                             followingCount = userInfoUiState.profile?.followingCount ?: 0,
-                            postCount = 1,
+                            postCount = userInfoUiState.profile?.postCount ?: 0,
 
                             isFollowing = userInfoUiState.profile?.isFollowing ?: false,
                             isCurrentUser = userInfoUiState.profile?.isOwnProfile ?:false,
@@ -255,7 +255,7 @@ fun ProfileScreen(
                             bio = userInfoUiState.profile?.bio ?: "",
                             followersCount = userInfoUiState.profile?.followersCount ?: 0,
                             followingCount = userInfoUiState.profile?.followingCount ?: 0,
-                            postCount = 1,
+                            postCount = userInfoUiState.profile?.postCount ?: 0,
 
                             isFollowing = userInfoUiState.profile?.isFollowing ?: false,
                             isCurrentUser = userInfoUiState.profile?.isOwnProfile ?:false,

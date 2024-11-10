@@ -12,5 +12,5 @@ data class Profile(
     val isFollowing: Boolean,
     val isOwnProfile: Boolean,
 
-    //val postCount: Int?
+    val postCount: Int
 )

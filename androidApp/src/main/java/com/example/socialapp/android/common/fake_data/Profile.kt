@@ -10,7 +10,8 @@ data class Profile(
     val followersCount: Int,
     val followingCount: Int,
     val isOwnProfile: Boolean = false,
-    val isFollowing: Boolean = false
+    val isFollowing: Boolean = false,
+    val postCount: Int = 0
 ) {
     fun toDomainProfiel(): com.example.socialapp.account.domain.model.Profile {
         return com.example.socialapp.account.domain.model.Profile(
@@ -21,7 +22,8 @@ data class Profile(
             followersCount = followersCount,
             followingCount = followingCount,
             isFollowing = isFollowing,
-            isOwnProfile = isOwnProfile
+            isOwnProfile = isOwnProfile,
+            postCount = postCount
         )
     }
 }
