@@ -7,7 +7,6 @@ import com.example.socialapp.account.data.model.toUserSettings
 import com.example.socialapp.account.domain.model.Profile
 import com.example.socialapp.account.domain.repository.ProfileRepository
 import com.example.socialapp.common.data.local.UserPreferences
-import com.example.socialapp.common.data.remote.PostApiService
 import com.example.socialapp.common.util.DispatcherProvider
 import com.example.socialapp.common.util.Result
 import com.example.socialapp.common.util.safeApiCall
@@ -21,7 +20,6 @@ import kotlinx.serialization.json.Json
 internal class ProfileRepositoryImpl(
     private val accountApiService: AccountApiService,
     private val userPreferences: UserPreferences,
-    //private val postApiService: PostApiService,
     private val dispatcher: DispatcherProvider
 ) : ProfileRepository {
 
@@ -125,37 +123,6 @@ internal class ProfileRepositoryImpl(
         }
 
     }
-
-    /*
-    override fun getProfileWithPostCount(profileId: Long): Flow<Result<Profile>> {
-        return flow {
-            val userData = userPreferences.getUserData()
-
-            val apiResponse = accountApiService.getProfile(
-                token = userData.token,
-                profileId = profileId,
-                currentUserId = userData.id
-            )
-
-            if (apiResponse.code == HttpStatusCode.OK) {
-
-                val remoteProfile = apiResponse.data.profile ?: return@flow
-
-                // Запрос к API для получения списка постов
-                val postsResponse = postApiService.getFeedPosts(
-                    userToken = userData.token,
-                    currentUserId = userData.id,
-                    page = 1,
-                    pageSize = 100
-                )
-            }
-
-
-        }
-    }
-
-     */
-
 
 }
 
