@@ -6,15 +6,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.socialapp.account.domain.model.Profile
 import com.example.socialapp.account.domain.usecase.GetProfileUseCase
 import com.example.socialapp.account.domain.usecase.UpdateProfileUseCase
-import com.example.socialapp.android.account.profile.ProfileUiAction
+import com.example.socialapp.android.common.util.CacheManager
 import com.example.socialapp.android.common.util.Event
 import com.example.socialapp.android.common.util.EventBus
 import com.example.socialapp.android.common.util.ImageBytesReader
+
+import com.example.socialapp.common.data.local.UserSettings
 import com.example.socialapp.common.util.Result
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -23,7 +26,11 @@ import kotlinx.coroutines.launch
 class EditProfileViewModel(
     private val getProfileUseCase: GetProfileUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
-    private val imageBytesReader: ImageBytesReader
+    private val imageBytesReader: ImageBytesReader,
+
+    private val dataStore: DataStore<UserSettings>,
+    private val cacheManager: CacheManager // Передаем зависимость для управления кэшем
+    //private val context: Context // Добавим Context для работы с файловой системой -- утечка пямяти
 ) : ViewModel(){
     var uiState: EditProfileUiState by mutableStateOf(EditProfileUiState())
         private set
@@ -147,11 +154,24 @@ class EditProfileViewModel(
     }
 
 
+    private fun logout() {
+        viewModelScope.launch {
+            // Очищаем данные пользователя в DataStore до начального состояния
+            dataStore.updateData { UserSettings() }
+
+            // Очистка файлов в папке cache
+            cacheManager.clearCache() // Очищаем кэш, используя CacheManager
+        }
+    }
+
+
+
     fun onUiAction(uiAction: EditProfileUiAction) {
         when (uiAction) {
 
             is EditProfileUiAction.FetchProfileAction -> fetchProfile(uiAction.userId)
             is EditProfileUiAction.UpdatedProfileAction -> imageBytesReader(imageUri = uiAction.imageUri)
+            is EditProfileUiAction.LogoutAction -> logout()
         }
     }
 
@@ -177,6 +197,7 @@ sealed interface EditProfileUiAction{
 
     class UpdatedProfileAction(val imageUri: Uri = Uri.EMPTY): EditProfileUiAction
 
+    object LogoutAction : EditProfileUiAction
 
 }
 

@@ -1,5 +1,6 @@
 package com.example.socialapp.android.account.edit
 
+import android.content.res.Configuration
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -76,6 +77,8 @@ fun EditProfileScreen(
     //onUploadButtonClick: () -> Unit,
     onUploadSucceed: () -> Unit,
     //fetchProfile: () -> Unit
+    onLogout: () -> Unit
+
 ) {
     val context = LocalContext.current
 
@@ -144,6 +147,7 @@ fun EditProfileScreen(
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
+
                 }
 
                 Spacer(modifier = modifier.height(LargeSpacing))
@@ -178,6 +182,26 @@ fun EditProfileScreen(
                 ) {
                     Text(text = stringResource(id = R.string.upload_changes_text))
                 }
+
+
+                Button(
+                    onClick = {
+                        onUiAction(EditProfileUiAction.LogoutAction)
+                        onLogout()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ButtonHeight)
+                        .padding(top = 10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        //containerColor = MaterialTheme.colorScheme.onErrorContainer
+                        containerColor = Color(0xFFEF9A9A)
+                    )
+                ) {
+                    Text(text = stringResource(id = R.string.logout_botton))
+                }
+
+
             }
 
         }
@@ -271,6 +295,7 @@ fun BioTextField(
 
 
 @Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun EditProfileScreenPreview() {
     SocialAppTheme {
@@ -288,6 +313,7 @@ private fun EditProfileScreenPreview() {
                 //onUploadButtonClick = { /*TODO*/ },
                 onUploadSucceed = { /*TODO*/ },
                 //fetchProfile = {}
+                onLogout = {}
             )
         }
     }
