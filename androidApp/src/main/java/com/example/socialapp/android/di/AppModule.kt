@@ -10,7 +10,6 @@ import com.example.socialapp.android.auth.login.LoginViewModel
 import com.example.socialapp.android.auth.singup.SignUpViewModel
 import com.example.socialapp.android.common.util.CacheManager
 import com.example.socialapp.android.common.util.ImageBytesReader
-import com.example.socialapp.common.data.UserSettingsSerializer
 import com.example.socialapp.android.home.HomeScreenViewModel
 import com.example.socialapp.android.post.PostDetailViewModel
 import com.example.socialapp.android.post.create_post.CreatePostViewModel
