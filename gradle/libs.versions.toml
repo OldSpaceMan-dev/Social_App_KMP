@@ -7,6 +7,8 @@ compose-material3 = "1.1.2"
 androidx-activityCompose = "1.8.0"
 ksp = "1.9.22-1.0.17"
 hilt = "2.51.1"
+multiplatformSettings = "1.1.1" # https://github.com/russhwolf/multiplatform-settings
+
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -17,6 +19,8 @@ compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview"
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
+multiplatformSettings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

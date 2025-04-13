@@ -3,11 +3,8 @@ package com.example.socialapp.android.auth.singup
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.socialapp.common.data.local.UserSettings
-import com.example.socialapp.common.data.local.toUserSettings
 import com.example.socialapp.auth.domain.usecase.SignUpUseCase
 import com.example.socialapp.common.util.Result
 import kotlinx.coroutines.launch
