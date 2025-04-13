@@ -99,3 +99,30 @@ fun getSharedModules() = listOf(
     followsModule,
     accountModule
 )
+
+
+/*
+private val settingsModule = module {
+
+}
+
+val settingsModule = DI.Module("settings") {
+    bind<Settings>() with singleton {
+        SettingsFactory().createSettings(
+            configuration = instance(),
+            name = "customer_sdk_settings",
+        )
+    }
+ */
+
+
+
+
+
+
+
+
+
+
+
+

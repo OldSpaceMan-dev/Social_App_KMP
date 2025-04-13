@@ -5,6 +5,7 @@ plugins {
 
     //Kotlinx Serialization - было 1.9.20
     kotlin("plugin.serialization") version "1.9.20"
+    id("co.touchlab.skie") version "0.10.1" // https://github.com/touchlab/SKIE
 
     //id("org.jetbrains.kotlin.native.cocoapods") version "2.0.21" // Добавьте эту строку
 }
@@ -81,6 +82,7 @@ kotlin {
             implementation("androidx.datastore:datastore-preferences-core:$datastoreVersion")
             //data time lib
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0-RC.2")
+            implementation(libs.multiplatformSettings)
 
 
 

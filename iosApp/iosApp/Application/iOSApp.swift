@@ -6,7 +6,10 @@ struct iOSApp: App {
     
     init() {
         //KoinHelperKt.initialize()
+        
+        KoinHelperKt.doInitKoin()
         //KMMHelper.shared.initialize()
+        //KoinHelper2.initialize()
         
     }
     

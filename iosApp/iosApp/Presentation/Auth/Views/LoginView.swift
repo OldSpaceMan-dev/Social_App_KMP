@@ -11,12 +11,13 @@ import SwiftUI
 struct LoginView: View {
     @StateObject var viewModel = LoginViewModel()
     
-    @State private var isLoggedIn = false // Добавляем состояние для управления переходом
+    //@State private var isLoggedIn = false // Добавляем состояние для управления переходом
     
     var body: some View {
         VStack {
-            if isLoggedIn {
-                HomeScreen() // Отображаем HomeScreen, если пользователь залогинен
+            if viewModel.isLoggedIn {
+                //HomeScreen() // Отображаем HomeScreen, если пользователь залогинен
+                MainTabView() // 🔁 Переходим к табам после успешного логина
             } else {
                 
                 VStack(spacing: 16) {
@@ -44,19 +45,18 @@ struct LoginView: View {
                     
                 }
                 .padding()
-                .onChange(of: viewModel.loginSuccess) { newValue in // Отслеживаем изменение loginSuccess
-                    if newValue {
-                        isLoggedIn = true // Переключаем состояние, чтобы отобразить HomeScreen
-                    }
-                }
+                //.onChange(of: viewModel.loginSuccess) { newValue in // Отслеживаем изменение loginSuccess
+                  //  if newValue {
+                    //    viewModel.isLoggedIn = true
+                    //}
+                //}
             }
         }
-        .onAppear { // Проверяем наличие токена в UserDefaults при запуске
-            if UserDefaults.standard.string(forKey: "authToken") != nil {
-                isLoggedIn = true
-            }
+        .onAppear { // Проверяем при появлении LoginView
+            viewModel.checkLoginState() // Проверяем при появлении LoginView
         }
     }
+    
 }
 
 
