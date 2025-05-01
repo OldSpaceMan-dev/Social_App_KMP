@@ -11,118 +11,96 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @AppStorage("authToken") var authToken: String?
+    
+    
+    @State private var selectedTab: Tab = .home // 🔥 добавить выбранную вкладку
+    
+    enum Tab {
+            case home
+            case create
+            case profile
+        }
+
+    
+    //прозрачный таббар
+    init() {
+        let appearance = UITabBarAppearance()
+        //appearance.configureWithTransparentBackground() ///полносьью прозрачный фон
+        appearance.configureWithDefaultBackground()
+        
+        appearance.backgroundEffect = nil //отключает блюр
+        appearance.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.9)
+        
+        /// Кастомизация иконок и текста
+        let itemAppearance = appearance.stackedLayoutAppearance
+
+        // Нормальное состояние
+        itemAppearance.normal.iconColor = UIColor.label.withAlphaComponent(0.5)
+        itemAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor.label.withAlphaComponent(0.9),
+            .font: UIFont.systemFont(ofSize: 11, weight: .medium)
+        ]
+
+        
+        // Выбранное состояние
+        itemAppearance.selected.iconColor = UIColor.label.withAlphaComponent(1.0)
+        itemAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIColor.label.withAlphaComponent(1.0),
+            .font: UIFont.systemFont(ofSize: 11, weight: .medium)
+        ]
+
+        
+        
+        UITabBar.appearance().standardAppearance = appearance
+        if #available(iOS 15.0, *) {
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
+    }
+    
+    
+    
     var body: some View {
         
-        let userIdString = UserDefaults.standard.string(forKey: "profileId") ?? "0"
-        let userId = Int64(userIdString) ?? 0
-        
-        
-        TabView {
-            HomeTabView()
-                .tabItem {
-                    Label("Home", systemImage: "house")
-                }
+        if authToken == nil {
+            LoginView()
+        } else {
+            
+            let userIdString = UserDefaults.standard.string(forKey: "profileId") ?? "0"
+            let userId = Int64(userIdString) ?? 0
             
 
-            ProfileTabView(userId: userId)
+            TabView(selection: $selectedTab) {
+                
+                
+                HomeTabView()
+                    .tabItem {
+                        Label("Home", systemImage: "house")
+                    }
+                    .tag(Tab.home)
+                
+                
+                CreatePostView(selectedTab: $selectedTab)
+                    .tabItem {
+                        Image(systemName: "plus.circle")
+                        Text("Create")
+                    }
+                    .tag(Tab.create)
+                
+                NavigationStack {
+                    ProfileTabView(userId: userId)
+                }
                 .tabItem {
                     Label("Profile", systemImage: "person")
                 }
-        }
-    }
-}
-
-
-
-
-
-
-/*
-import SwiftUI
-
-struct HomeScreen: View {
-    
-    @ObservedObject var viewModel = PostsViewModel()
-    @ObservedObject var profileViewModel = ProfileViewModel()
-
-    
-    @State private var isLoggedIn = true // Добавляем состояние для управления выходом
-    
-    var body: some View {
-        if isLoggedIn {
-            VStack {
-                 //Text("Welcome to the Home Screen!")
-                    //.font(.largeTitle)
-                
-                // 👤 Отображаем профиль (если есть)
-                if let profile = profileViewModel.profile {
-                    VStack {
-                        Text("👋 Hello, \(profile.name)")
-                            .font(.headline)
-                        Text(" id - \(profile.id)")
-                            .font(.subheadline)
-                        Text(" Count Post - \(profile.postCount)")
-                            .font(.subheadline)
-                    }
-                    
-                } else {
-                    Text("No profile loaded")
-                        .foregroundColor(.gray)
-                }
-                                
-                // 🔄 Загрузить профиль вручную
-                Button("Load Profile") {
-                    Task {
-                        await profileViewModel.loadProfile()
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                                
-                // 🧪 Отображаем ошибку, если она есть
-                if let errorMessage = profileViewModel.errorMessage {
-                    Text("Error: \(errorMessage)")
-                        .foregroundColor(.red)
-                        .padding()
-                    
-                }
-                
-                Divider()
+                .tag(Tab.profile)
                 
                 
-                ////////////////////
-                PostListView(viewModel: viewModel)
-                
-                ///
-                //ProfileView()
-                
-                
-                
-                Button("Logout") {
-                    // Удаляем токен из UserDefaults
-                    UserDefaults.standard.removeObject(forKey: "authToken")
-                    isLoggedIn = false // Переключаем состояние, чтобы вернуться на экран логина
-                }
-                .buttonStyle(.bordered)
-                            
             }
-        } else {
-            LoginView() // Возвращаемся на экран логина, если пользователь вышел из аккаунта
             
         }
- 
     }
-    
 }
- */
 
-
-/*
-struct HomeScreen_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeScreen(
-            viewModel: MockPostsViewModel()
-        )
-    }
-}*/
 
 

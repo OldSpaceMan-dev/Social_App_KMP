@@ -9,25 +9,39 @@ import SwiftUI
 import shared
 
 struct ProfileTabView: View {
-    @ObservedObject var viewModel = ProfileViewModel()
+    //@ObservedObject var viewModel = OwnProfileViewModel()
     //@ObservedObject var postsViewModel = PostsViewModel()
+    
+    
     
     let userId: Int64
     @StateObject var postsViewModel: UserPostsViewModel
+    @StateObject var userProfileViewModel: UserProfileViewModel
+    
+    @State private var isEditingProfile = false // состояние навигации
+
+
 
     init(userId: Int64) {
         self.userId = userId
         _postsViewModel = StateObject(wrappedValue: UserPostsViewModel(userId: userId))
+        _userProfileViewModel = StateObject(wrappedValue: UserProfileViewModel(userId: userId))
     }
 
     
     var body: some View {
-        NavigationView {
-            if let profile = viewModel.profile {
+        //NavigationView {
+            if let profile = userProfileViewModel.profile { //viewModel.profile {
                 ProfileView(
                     profile: profile,
                     posts: postsViewModel.posts,
-                    onProfileButtonClick: {},
+                    onProfileButtonClick: {
+                        if profile.isOwnProfile {
+                            isEditingProfile = true
+                        } else {
+                            //TODO for follow/unfollow
+                        }
+                    },
                     onProfileClick: { _ in },
                     onLikeClick: { _ in },
                     onCommentClick: { _ in },
@@ -39,12 +53,26 @@ struct ProfileTabView: View {
                     }
                 )
                 .navigationTitle("Profile")
+                
                 .onAppear {
                     Task {
                         await postsViewModel.loadInitialPosts()
                     }
                 }
-            } else if let error = viewModel.errorMessage {
+                .sheet(isPresented: $isEditingProfile) {
+                    EditProfileView(
+                        profile: profile,
+                        userId: profile.id,
+                        onProfileUpdated: {
+                            Task {
+                                await userProfileViewModel.loadProfile()
+                                await postsViewModel.loadInitialPosts()
+                            }
+                            isEditingProfile = false
+                        }
+                    )
+                }
+            } else if let error = userProfileViewModel.errorMessage { //viewModel.errorMessage {
                 Text("Error: \(error)")
                     .foregroundColor(.red)
                     .padding()
@@ -52,11 +80,11 @@ struct ProfileTabView: View {
                 ProgressView("Loading Profile...")
                     .onAppear {
                         Task {
-                            await viewModel.loadProfile()
+                            await userProfileViewModel.loadProfile()//viewModel.loadProfile()
                         }
                     }
             }
-        }
+        //}
         
     }
 }

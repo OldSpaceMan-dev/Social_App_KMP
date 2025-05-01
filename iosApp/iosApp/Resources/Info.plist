@@ -29,6 +29,8 @@
 	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Пожалуйста, разрешите доступ к Фото для загрузки изображений в посты.</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

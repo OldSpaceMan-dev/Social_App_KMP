@@ -11,19 +11,6 @@ import Combine // Import Combine
 
 
 
-/*
-enum SwiftResult<Success, Failure: Error> {
-    case success(Success)
-    case failure(Failure)
-}
-
-func toSwiftResult<T>(kmmResult: shared.Result<T>) -> SwiftResult<T, Error> {
-    
-        return .success(kmmResult.data as! T)
-}
- */
-
-
 extension LoginView {
     @MainActor class LoginViewModel: ObservableObject {
         
