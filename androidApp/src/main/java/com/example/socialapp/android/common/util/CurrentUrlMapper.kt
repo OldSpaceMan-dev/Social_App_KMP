@@ -1,6 +1,6 @@
 package com.example.socialapp.android.common.util
 
-private const val CURRENT_BASE_URL = "http://192.168.1.107:8080/"
+private const val CURRENT_BASE_URL = "http://192.168.1.106:8080/"
 
 
 fun String.toCurrentUrl(): String {

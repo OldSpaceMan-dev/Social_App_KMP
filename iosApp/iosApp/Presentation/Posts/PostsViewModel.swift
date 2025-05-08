@@ -24,7 +24,7 @@ import Combine
         
         
      private let getPostsUseCase = KoinIOSHelper().getPostsUseCase()
-     
+     private let likeOrUnlikePostUseCase = KoinIOSHelper().likeOrUnlikePostUseCase()
      
      
  
@@ -73,6 +73,54 @@ import Combine
      }
      
      
+     
+     func toggleLike(post: Post) async {
+         guard let index = posts.firstIndex(where: { $0.postId == post.postId }) else { return }
+         
+         let originalPost = post
+         let newIsLiked = !post.isLiked
+         let newLikesCount = post.likesCount + (newIsLiked ? 1 : -1)
+         
+         // Создаем копию поста через doCopy
+         
+         let updatedPost = post.doCopy(
+            postId: post.postId,
+            caption: post.caption,
+            imageUrl: post.imageUrl,
+            createdAt: post.createdAt,
+            likesCount: newLikesCount, // Int32
+            commentsCount: post.commentsCount,
+            userId: post.userId,
+            userName: post.userName,
+            userImageUrl: post.userImageUrl,
+            isLiked: newIsLiked, // BOOL
+            isOwnPost: post.isOwnPost
+         )
+         // Оптимистично обновляем UI
+         DispatchQueue.main.async {
+             self.posts[index] = updatedPost
+         }
+         
+         do {
+             let result = try await likeOrUnlikePostUseCase.invoke(post: post)
+             if result is ResultError {
+                 // Откатываем изменения при ошибке
+                 DispatchQueue.main.async {
+                     self.posts[index] = originalPost
+                     self.errorMessage = "Не удалось обновить лайк"
+                 }
+             }
+         } catch {
+             // Откатываем изменения при исключении
+             DispatchQueue.main.async {
+                 self.posts[index] = originalPost
+                 self.errorMessage = error.localizedDescription
+             }
+         }
+         
+     }
+
+
      
 }
 

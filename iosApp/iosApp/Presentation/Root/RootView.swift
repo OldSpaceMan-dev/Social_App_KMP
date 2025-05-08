@@ -8,7 +8,7 @@
 
 
 
-/*
+/* идея с общей навигации - но пока через таб вью 
 import SwiftUI
 
 enum RootScreen {

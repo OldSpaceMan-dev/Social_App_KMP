@@ -33,7 +33,9 @@ struct HomeTabView: View {
                             print("Profile Clicked for user \(userId)")
                         },
                         onLikeClick: { post in
-                            // TODO: Handle like click
+                            Task {
+                                await viewModel.toggleLike(post: post)
+                            }
                             print("Like Clicked for post \(post.postId)")
                         },
                         onCommentClick: { post in
