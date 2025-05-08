@@ -16,6 +16,8 @@ struct PostItemView: View {
     let onCommentClick: (Post) -> Void
     let onPostMoreIconClick: (Post) -> Void
 
+    @State private var isExpanded = false // показ текста
+    
     var body: some View {
         VStack(alignment: .leading) {
             PostHeaderView(
@@ -45,16 +47,34 @@ struct PostItemView: View {
                 }
             )
 
-            Text(post.caption)
-                .font(.body)
-                .lineLimit(2)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(post.caption)
+                    .font(.body)
+                    .lineLimit(isExpanded ? nil : 2)
+                    .animation(.easeInOut, value: isExpanded)
+                
+                if showMoreTextButton(text: post.caption) {
+                    Button(action: {
+                        isExpanded.toggle()
+                    }) {
+                        Text(isExpanded ? "Show less" : "Show more")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                }
+            }
+            
+         
         }
-        .background(Color.white)
+        .background(Color(uiColor: .systemBackground))
         .cornerRadius(10)
-        .shadow(radius: 3)
+        //.shadow(radius: 3)
         .padding(.vertical, 8)
+    }
+    
+    
+    private func showMoreTextButton(text: String) -> Bool {
+        return text.count > 120
     }
 }
 
@@ -65,7 +85,7 @@ struct PostListItemPreview: PreviewProvider {
         PostItemView(
             post: Post(
                 postId: 1,
-                caption: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore...",
+                caption: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore...Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore..",
                 imageUrl: "https://burst.shopifycdn.com/photos/the-eiffel-tower-paris.jpg",
                 createdAt: "20 min",
                 likesCount: 12,

@@ -12,6 +12,51 @@ struct ProfileImage: View {
     let imageUrl: String?
     var size: CGFloat = 30
 
+    var body: some View {
+        AsyncImage(url: URL(string: (imageUrl ?? "").toCurrentUrl())) { phase in
+            switch phase {
+            case .empty:
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: size, height: size)
+                    .foregroundColor(.gray)
+            case .success(let image):
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: size, height: size)
+                    .clipShape(Circle())
+            case .failure(_):
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: size, height: size)
+                    .foregroundColor(.gray)
+            @unknown default:
+                EmptyView()
+            }
+        }
+        .clipShape(Circle())
+    }
+}
+
+struct ProfileImage_Previews: PreviewProvider {
+    static var previews: some View {
+        ProfileImage(imageUrl: "")
+            .previewLayout(.sizeThatFits)
+    }
+}
+
+
+
+/*
+import SwiftUI
+
+struct ProfileImage: View {
+    let imageUrl: String?
+    var size: CGFloat = 30
+
 
     @State private var imageLoaded = false
     @State private var timerFinished = false
@@ -23,10 +68,11 @@ struct ProfileImage: View {
                     url: URL(string: (imageUrl ?? "").toCurrentUrl()),
                     content: { phase in
                         switch phase {
-                        case .empty:
+                        /*case .empty:
                             ProgressView() // Пока идет загрузка
                                 .frame(width: size, height: size)
-                        case .success(let image):
+                        */
+                         case .success(let image):
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -53,9 +99,9 @@ struct ProfileImage: View {
                     .frame(width: size, height: size)
                     .foregroundColor(.gray)
             } else {
-                ProgressView() // 1 секунду
+                ProgressView() // ==1 секунду== сразу
                     .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        DispatchQueue.main.asyncAfter(deadline: .now()) {
                             timerFinished = true
                             imageLoaded = true
                         }
@@ -75,3 +121,4 @@ struct ProfileImage_Previews: PreviewProvider {
             .previewLayout(.sizeThatFits)
     }
 }
+*/

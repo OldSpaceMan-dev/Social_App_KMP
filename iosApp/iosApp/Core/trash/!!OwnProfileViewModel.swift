@@ -8,11 +8,11 @@
 
 
 
-
+/*
 import Foundation
 import shared
 
-class ProfileViewModel: ObservableObject {
+class OwnProfileViewModel: ObservableObject {
     @Published var profile: Profile? = nil
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -83,5 +83,5 @@ class ProfileViewModel: ObservableObject {
     }
     
 }
-    
+    */
 

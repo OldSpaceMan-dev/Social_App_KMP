@@ -12,6 +12,8 @@ import shared
 struct ProfileView: View {
     
     //@ObservedObject var viewModel = ProfileViewModel()
+    @Environment(\.colorScheme) var colorScheme
+
     
     let profile: Profile
     let posts: [Post]
@@ -35,9 +37,15 @@ struct ProfileView: View {
                 return "Follow"
             }
         }
+
     var isOutlined: Bool {
         profile.isOwnProfile || profile.isFollowing
     }
+
+    var isFilled: Bool {
+        !profile.isOwnProfile && !profile.isFollowing
+    }
+
     
     var body: some View {
         ScrollView {
@@ -78,16 +86,22 @@ struct ProfileView: View {
                     Button(action: onProfileButtonClick) {
                         Text(buttonText)
                             .font(.subheadline)
-                            .foregroundColor(.black)
+                            .foregroundColor(Color.primary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            //.frame(height: 30)
-                            //.frame(minWidth: 80)
+                            .background(
+                                isFilled ? Color.accentColor : Color.clear
+                            )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.black, lineWidth: isOutlined ? 1 : 0)
+                                    .stroke(
+                                        colorScheme == .dark ? Color.white.opacity(0.8) : Color.black.opacity(0.8),
+                                        lineWidth: isOutlined ? 1 : 0
+                                    )
+                                //.stroke(Color.black, lineWidth: isOutlined ? 1 : 0)
                             )
                     }
+                    .cornerRadius(12)
                 }
                 .padding(.horizontal)
                 
@@ -152,8 +166,8 @@ struct ProfileView_Previews: PreviewProvider {
             imageUrl: "https://burst.shopifycdn.com/photos/woman-in-glasses.jpg",
             followersCount: 12,
             followingCount: 150,
-            isFollowing: true,
-            isOwnProfile: true,
+            isFollowing: false,
+            isOwnProfile: false,
             postCount: 1
         )
 
@@ -199,3 +213,5 @@ struct ProfileView_Previews: PreviewProvider {
         .previewDisplayName("ProfileView Preview")
     }
 }
+
+
