@@ -46,6 +46,24 @@
 ## 🌄 Скрины 
 <img src="https://github.com/user-attachments/assets/04ee30b9-d8bf-46b2-a9dd-f50615a0bd15" alt="Android Screenshot Android1" width="200" />
 <img src="https://github.com/user-attachments/assets/bb44735d-a55b-42a7-b402-89cf5fd0b4f2" alt="Android Screenshot Android1" width="200" />
+
+<img src="https://github.com/user-attachments/assets/2c2e7888-dd37-46ad-a7cf-f9c6fa9a4ff9" alt="Android Screenshot Android1" width="200" />
+<img src="https://github.com/user-attachments/assets/87a29dbe-9043-4f62-b317-3cb635fcc894" alt="Android Screenshot Android1" width="200" />
+
+<img src="https://github.com/user-attachments/assets/8f9a2297-0429-4611-8bd7-a5f220819e49" alt="Android Screenshot Android1" width="200" />
+<img src="https://github.com/user-attachments/assets/37776e88-5e7f-4855-ab78-f207146e27fa" alt="Android Screenshot Android1" width="200" />
+
+
+
+
+
+
 <img src="" alt="Android Screenshot Android1" width="200" />
+
+
+
+
+
+
 
 
