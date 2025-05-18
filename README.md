@@ -44,3 +44,8 @@
 
 
 ## 🌄 Скрины 
+<img src="https://github.com/user-attachments/assets/04ee30b9-d8bf-46b2-a9dd-f50615a0bd15" alt="Android Screenshot Android1" width="200" />
+<img src="https://github.com/user-attachments/assets/bb44735d-a55b-42a7-b402-89cf5fd0b4f2" alt="Android Screenshot Android1" width="200" />
+<img src="" alt="Android Screenshot Android1" width="200" />
+
+
